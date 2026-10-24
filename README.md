@@ -52,7 +52,7 @@ Controller explains every decision from the append-only audit log.
 | **Anthropic (Claude)** | Reads documents with structured output and no tools; lookalike check; plain-language explanations. See failure modes below | TBD |
 | **Cartesia** | The Caller seat calls the vendor on file (a live voice call in the browser); "Ask Quintet" speaks answers | TBD |
 | **Capital One Nessie** | The business's bank: accounts, payees and idempotent transfers | TBD |
-| **Convex** | System of record, reactive live board, scheduled pipeline, webhooks | TBD |
+| **Convex** | System of record, reactive live board, scheduled pipeline | TBD |
 | **Microsoft** | See "Responsible design" and "Path to production" below | TBD |
 
 ## Proof it works
