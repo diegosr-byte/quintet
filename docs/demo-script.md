@@ -1,9 +1,9 @@
 # Demo script
 
-**Roles at the table:**
-- **Diego** pitches.
-- **Kai** drives the laptop.
-- **Josiah** is the "vendor" whose phone rings, and answers backend questions.
+**Roles at the table (all three speak):**
+- **Diego** opens, closes, and answers questions on the gate, the policy, the eval and the evidence.
+- **Kai** drives the laptop, narrates what's on screen, and answers UI questions.
+- **Josiah** owns the call and the payment, and answers backend questions (CRS, Nessie, Cartesia, Convex).
 
 ## Video: 2:00 maximum (sponsors judge from this)
 **Format:**
@@ -34,12 +34,20 @@
 
 | Time | Who | What |
 |---|---|---|
-| 0:00–0:15 | Diego | "Small businesses move real money (supplier invoices, employee reimbursements) through one person, with nobody checking their work, and fake 'we changed banks' invoices target exactly that gap." "Quintet is the second signature." Then one line, before any demo: "Every document takes the same five steps: **read, verify, call, decide, pay.** Watch where this one stops." Name each step as it lights up on the board. |
-| 0:15–1:00 | Kai drives, Diego narrates | Kai runs DEMO-1 from the console. Diego names the three red checks. Josiah's phone rings; Josiah answers as the vendor and says "no". The case goes to BLOCKED. |
-| 1:00–1:20 | Diego | Push-to-talk: "Why did you hold it?" The spoken answer cites the audit log. |
-| 1:20–1:45 | Kai | The genuine invoice → ALLOW → paid. Fault injection on → paid exactly once. Diego: "The model can't move money. A tested rules engine decides, and the model can only make it stricter." |
-| 1:45–2:25 | Judge | "Your turn: give us a receipt from your wallet, or change anything on this invoice." Kai runs it live. |
-| 2:25–3:00 | Diego | Scorecard → "what's real, what's simulated" → "Quintet fills five seats a small business can't staff: intake clerk, verification analyst, caller, payments clerk, controller. The owner only signs what policy says needs a human." |
+| 0:00–0:20 | Diego | "Small businesses move real money (supplier invoices, employee reimbursements) through one person, with nobody checking their work, and fake 'we changed banks' invoices target exactly that gap." "Quintet is the second signature. Every document takes the same five steps: **read, verify, call, decide, pay.** Watch where this one stops." |
+| 0:20–0:50 | Kai | Runs DEMO-1 from the console and narrates the board as each step lights up. **Read:** the invoice arrives and Quintet finds the bank changed and hidden text aimed at the AI. **Verify:** three red checks: the bank changed, CRS says the number belongs to someone else with a fraud score of 85, and the hidden instructions. |
+| 0:50–1:15 | Josiah | **Call.** "Quintet calls the number we have on file, not the one on the invoice." The phone rings and Josiah answers as the vendor: "No, we didn't change anything." The case goes to BLOCKED. |
+| 1:15–1:35 | Diego | Push-to-talk: "Why did you hold it?" The spoken answer cites the audit log. "Every action is in an append-only log." |
+| 1:35–2:05 | Josiah (Kai drives) | **Decide, pay.** The genuine invoice → ALLOW → paid. Fault injection on: "I'm breaking the payment. It retries, and it still pays exactly once, because every payment carries a unique key." Diego adds one line: "The model can't move money. A tested rules engine decides, and the model can only make it stricter." |
+| 2:05–2:30 | Judge (Kai runs it) | "Your turn: give us a receipt from your wallet, or change anything on this invoice." Diego prompts, Kai runs it live. |
+| 2:30–3:00 | Diego | Scorecard → "what's real, what's simulated" → "Quintet fills five seats a small business can't staff: intake clerk, verification analyst, caller, payments clerk, controller. The owner only signs what policy says needs a human." |
+
+**Speaking time:** Diego about 1:15, Josiah about 55 s, Kai about 30 s plus the judge round.
+
+**Who answers in the 2 minutes of questions:**
+- **Diego:** the policy and its source, the eval, the failure modes, why these customers.
+- **Kai:** the UI, the console, Ask Quintet, the video.
+- **Josiah:** CRS and the allowlist, the call, Nessie and idempotency, Convex.
 
 ## 20-second sponsor add-ons (for judges who stop by)
 - **Hyphenate:** the seats line, plus "audit-ready by default: every action has an append-only log entry; try your own scenario."
