@@ -4,7 +4,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { useMutation } from "convex/react";
-import { ArrowRight, Power } from "lucide-react";
+import { ArrowRight, Power, Sparkles } from "lucide-react";
 import { api } from "@/convex/_generated/api";
 import { FunctionReturnType } from "convex/server";
 import { VerdictButton, WhyPanel } from "@/components/CaseWhy";
@@ -27,18 +27,56 @@ export default function OpsBoard() {
   const today = (cases ?? []).filter((c) => c._creationTime >= startOfToday);
   // Count by when the money moved, not when the case was created (seeded history is created today too).
   const paidTodayIds = new Set(
-    (recent ?? []).filter((a) => a.kind === "payment_succeeded" && a._creationTime >= startOfToday).map((a) => a.caseId),
+    (recent ?? [])
+      .filter(
+        (a) =>
+          a.kind === "payment_succeeded" && a._creationTime >= startOfToday,
+      )
+      .map((a) => a.caseId),
   );
-  const paid = (cases ?? []).filter((c) => c.status === "paid" && paidTodayIds.has(c._id));
+  const paid = (cases ?? []).filter(
+    (c) => c.status === "paid" && paidTodayIds.has(c._id),
+  );
   const totals = [
-    { label: "Paid today", value: formatCents(paid.reduce((sum, c) => sum + (c.amountCents ?? 0), 0)), sub: `${paid.length} case${paid.length === 1 ? "" : "s"}` },
-    { label: "Needs your signature", value: today.filter((c) => c.status === "awaiting_approval").length },
-    { label: "Stopped", value: today.filter((c) => c.status === "blocked" || c.status === "rejected").length },
-    { label: "In progress", value: today.filter((c) => ["received", "extracting", "checking", "awaiting_call", "paying"].includes(c.status)).length },
+    {
+      label: "Paid today",
+      value: formatCents(
+        paid.reduce((sum, c) => sum + (c.amountCents ?? 0), 0),
+      ),
+      sub: `${paid.length} case${paid.length === 1 ? "" : "s"}`,
+    },
+    {
+      label: "Needs your signature",
+      value: today.filter((c) => c.status === "awaiting_approval").length,
+    },
+    {
+      label: "Stopped",
+      value: today.filter(
+        (c) => c.status === "blocked" || c.status === "rejected",
+      ).length,
+    },
+    {
+      label: "In progress",
+      value: today.filter((c) =>
+        [
+          "received",
+          "extracting",
+          "checking",
+          "awaiting_call",
+          "paying",
+        ].includes(c.status),
+      ).length,
+    },
   ];
 
   const toggleKillSwitch = () => {
-    if (!frozen && !window.confirm("Freeze all payments? Nothing will be paid until you unfreeze.")) return;
+    if (
+      !frozen &&
+      !window.confirm(
+        "Freeze all payments? Nothing will be paid until you unfreeze.",
+      )
+    )
+      return;
     void setKillSwitch({ on: !frozen });
   };
 
@@ -47,51 +85,89 @@ export default function OpsBoard() {
       <header className="flex flex-wrap items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-3">
-            <h1 className="text-4xl font-bold tracking-tight text-primary">Quintet</h1>
+            <h1 className="text-4xl font-bold tracking-tight text-primary">
+              Quintet
+            </h1>
             <SyntheticBadge />
           </div>
         </div>
-        <Button
-          size="lg"
-          variant="outline"
-          onClick={toggleKillSwitch}
-          className={
-            frozen
-              ? "h-14 rounded-full border-[#B5E8CC] bg-[#ECFAF3] px-6 text-lg text-[#0F6B3E] hover:bg-[#DCF5E7] [&_svg]:size-6"
-              : "h-14 rounded-full border-[#F5BFC6] bg-[#FFF1F2] px-6 text-lg text-[#A3182B] hover:bg-[#FFE1E4] [&_svg]:size-6"
-          }
-        >
-          <Power aria-hidden />
-          {frozen ? "Unfreeze payments" : "Freeze all payments"}
-        </Button>
+        <div className="flex flex-wrap items-center gap-3">
+          <Button
+            asChild
+            size="lg"
+            variant="outline"
+            className="h-14 rounded-full px-6 text-lg [&_svg]:size-5"
+          >
+            <Link href="/console">
+              <Sparkles aria-hidden /> Try it yourself
+            </Link>
+          </Button>
+          <Button
+            size="lg"
+            variant="outline"
+            onClick={toggleKillSwitch}
+            className={
+              frozen
+                ? "h-14 rounded-full border-[#B5E8CC] bg-[#ECFAF3] px-6 text-lg text-[#0F6B3E] hover:bg-[#DCF5E7] [&_svg]:size-6"
+                : "h-14 rounded-full border-[#F5BFC6] bg-[#FFF1F2] px-6 text-lg text-[#A3182B] hover:bg-[#FFE1E4] [&_svg]:size-6"
+            }
+          >
+            <Power aria-hidden />
+            {frozen ? "Unfreeze payments" : "Freeze all payments"}
+          </Button>
+        </div>
       </header>
 
       {frozen && (
-        <div role="alert" className="flex items-center gap-3 rounded-2xl border border-[#F5BFC6] bg-[#FFE1E4] px-5 py-4 text-xl font-semibold text-[#A3182B]">
+        <div
+          role="alert"
+          className="flex items-center gap-3 rounded-2xl border border-[#F5BFC6] bg-[#FFE1E4] px-5 py-4 text-xl font-semibold text-[#A3182B]"
+        >
           <AgentAvatar seat="payments" size={36} />
           Kill switch on. Penny won&apos;t send any payment until you unfreeze.
         </div>
       )}
 
       <section aria-labelledby="team-heading">
-        <h2 id="team-heading" className="mb-3 text-2xl font-semibold">Your team</h2>
+        <h2 id="team-heading" className="mb-3 text-2xl font-semibold">
+          Your team
+        </h2>
         <ul className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-5">
           {TEAM.map((seat) => {
             const agent = AGENTS[seat];
             const count = workload.get(seat) ?? 0;
             return (
-              <li key={seat} className="soft-card relative flex flex-col gap-3 p-4">
-                <StatusDot seat={seat} count={count} className="absolute right-4 top-4" />
+              <li
+                key={seat}
+                className="soft-card relative flex flex-col gap-3 p-4"
+              >
+                <StatusDot
+                  seat={seat}
+                  count={count}
+                  className="absolute right-4 top-4"
+                />
                 <div className="flex items-center gap-3">
-                  <span className="flex size-14 items-center justify-center rounded-2xl" style={{ background: agent.tint }}>
+                  <span
+                    className="flex size-14 items-center justify-center rounded-2xl"
+                    style={{ background: agent.tint }}
+                  >
                     <AgentAvatar seat={seat} size={46} busy={count > 0} />
                   </span>
                   <div>
-                    <div className="text-xl font-bold" style={{ color: agent.ink }}>{agent.name}</div>
-                    <div className="text-base text-muted-foreground">{agent.role}</div>
+                    <div
+                      className="text-xl font-bold"
+                      style={{ color: agent.ink }}
+                    >
+                      {agent.name}
+                    </div>
+                    <div className="text-base text-muted-foreground">
+                      {agent.role}
+                    </div>
                   </div>
                 </div>
-                <p className="text-base leading-snug text-muted-foreground">{agent.job}</p>
+                <p className="text-base leading-snug text-muted-foreground">
+                  {agent.job}
+                </p>
               </li>
             );
           })}
@@ -102,15 +178,21 @@ export default function OpsBoard() {
         {totals.map((t) => (
           <div key={t.label} className="soft-card p-4">
             <div className="text-base text-muted-foreground">{t.label}</div>
-            <div className="text-4xl font-bold tabular-nums">{cases === undefined ? "—" : t.value}</div>
-            {t.sub && <div className="text-base text-muted-foreground">{t.sub}</div>}
+            <div className="text-4xl font-bold tabular-nums">
+              {cases === undefined ? "—" : t.value}
+            </div>
+            {t.sub && (
+              <div className="text-base text-muted-foreground">{t.sub}</div>
+            )}
           </div>
         ))}
       </section>
 
       <div className="grid gap-6 lg:grid-cols-[1fr_24rem]">
         <section aria-labelledby="cases-heading">
-          <h2 id="cases-heading" className="mb-3 text-2xl font-semibold">Cases</h2>
+          <h2 id="cases-heading" className="mb-3 text-2xl font-semibold">
+            Cases
+          </h2>
           {cases === undefined ? (
             <p className="text-muted-foreground">Loading…</p>
           ) : cases.length === 0 ? (
@@ -130,15 +212,24 @@ export default function OpsBoard() {
         </section>
 
         <aside aria-labelledby="activity-heading">
-          <h2 id="activity-heading" className="mb-3 text-2xl font-semibold">Activity</h2>
+          <h2 id="activity-heading" className="mb-3 text-2xl font-semibold">
+            Activity
+          </h2>
           <ol className="soft-card divide-y divide-border/70">
             {(recent ?? []).slice(0, 15).map((a) => (
               <li key={a._id} className="flex gap-3 p-4 text-base">
                 <AgentAvatar seat={a.seat} size={32} className="mt-0.5" />
                 <div className="min-w-0">
                   <div className="flex justify-between gap-2">
-                    <span className="font-semibold" style={{ color: AGENTS[a.seat].ink }}>{AGENTS[a.seat].name}</span>
-                    <span className="text-sm text-muted-foreground tabular-nums">{formatTime(a._creationTime)}</span>
+                    <span
+                      className="font-semibold"
+                      style={{ color: AGENTS[a.seat].ink }}
+                    >
+                      {AGENTS[a.seat].name}
+                    </span>
+                    <span className="text-sm text-muted-foreground tabular-nums">
+                      {formatTime(a._creationTime)}
+                    </span>
                   </div>
                   <p className="leading-snug">{a.summary}</p>
                 </div>
@@ -159,16 +250,29 @@ function CaseRow({ c }: { c: CaseListItem }) {
   return (
     <div className="soft-card p-5 transition-shadow hover:shadow-md">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <Link href={`/case/${c._id}`} className="min-w-0 flex-1 rounded-lg focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring">
-          <div className="truncate text-xl font-semibold hover:underline">{c.partyName ?? c.fileName ?? "Unknown payee"}</div>
+        <Link
+          href={`/case/${c._id}`}
+          className="min-w-0 flex-1 rounded-lg focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring"
+        >
+          <div className="truncate text-xl font-semibold hover:underline">
+            {c.partyName ?? c.fileName ?? "Unknown payee"}
+          </div>
           <div className="text-base text-muted-foreground">
             {c.kind === "reimbursement" ? "Reimbursement" : "Vendor payment"}
-            {c.invoiceNumber && ` · #${c.invoiceNumber}`} · {formatTime(c._creationTime)}
+            {c.invoiceNumber && ` · #${c.invoiceNumber}`} ·{" "}
+            {formatTime(c._creationTime)}
           </div>
         </Link>
         <div className="flex items-center gap-4">
-          <span className="text-2xl font-bold tabular-nums">{formatCents(c.amountCents, c.currency)}</span>
-          <VerdictButton verdict={c.verdict} open={open} onToggle={() => setOpen(!open)} controls={panelId} />
+          <span className="text-2xl font-bold tabular-nums">
+            {formatCents(c.amountCents, c.currency)}
+          </span>
+          <VerdictButton
+            verdict={c.verdict}
+            open={open}
+            onToggle={() => setOpen(!open)}
+            controls={panelId}
+          />
         </div>
       </div>
       <div className="mt-4 flex flex-wrap items-start justify-between gap-3">
@@ -178,7 +282,10 @@ function CaseRow({ c }: { c: CaseListItem }) {
       {open && (
         <div className="mt-4 space-y-3">
           <WhyPanel id={panelId} c={c} />
-          <Link href={`/case/${c._id}`} className="inline-flex items-center gap-1.5 text-base font-semibold text-primary hover:underline">
+          <Link
+            href={`/case/${c._id}`}
+            className="inline-flex items-center gap-1.5 text-base font-semibold text-primary hover:underline"
+          >
             Open case <ArrowRight className="size-4" aria-hidden />
           </Link>
         </div>

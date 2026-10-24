@@ -3,6 +3,7 @@
 // Floating status widget, bottom right on every page: who's working, whether anything needs you,
 // and whether payments are live. Click to open the full team view.
 import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
 import { ChevronDown } from "lucide-react";
 import { AgentAvatar, AGENTS, TEAM } from "@/components/agents";
 import { StatusDot, useTeamStatus } from "@/components/team-status";
@@ -11,6 +12,7 @@ import { cn } from "@/lib/utils";
 export function StatusWidget() {
   const { workload, frozen, needsSignature, inProgress, loading } = useTeamStatus();
   const [open, setOpen] = useState(false);
+  const pathname = usePathname();
 
   useEffect(() => {
     if (!open) return;
@@ -19,7 +21,8 @@ export function StatusWidget() {
     return () => window.removeEventListener("keydown", onKey);
   }, [open]);
 
-  if (loading) return null;
+  // The phone upload page stays single-purpose.
+  if (loading || pathname === "/upload") return null;
 
   const busy = TEAM.filter((seat) => (workload.get(seat) ?? 0) > 0);
   const summary = frozen ? "Payments frozen" : inProgress > 0 ? `${inProgress} in progress` : "All quiet";
