@@ -131,7 +131,11 @@ Researched Oct 22 from the Hacker Guide, Devpost, hive.hackberkeley.org/prizes a
   - Key checking is lax, and `/enterprise` shows other teams' records, so treat all data as public. Synthetic data only.
   - With no key, `/customers` returns 502, not 401.
   - The SDKs are years old; use plain `fetch`.
-  - **POST behavior is untested: test it first thing Friday.**
+  - **POST behavior (tested Oct 24):** creates answer 201 `{ code, message, objectCreated: { _id, ... } }`.
+  - `POST /accounts/{id}/transfers` (TransferCreate) requires `transaction_date`, `status`, `amount`, `description` and rejects `medium` and `payee_id`, so there is no payee field; we put `to:<accountId>` in the description. `status` is not validated.
+  - Balances never move: transfers and withdrawals are records only. Show our own ledger, not Nessie balances.
+  - `GET /accounts/{id}/transfers` returns items keyed `id` (not `_id`), ignores `?type=`, and answers 404 "No transfers found" when empty.
+  - `POST /accounts/{id}/deposits` also requires `status`.
   - There's no idempotency support, so our `payments` table plus the tag lookup provides it.
 - **Our use:** the business's checking account; payees as accounts; payments as transfers (or bills) tagged `QT-…`.
 - **Owner:** Josiah.

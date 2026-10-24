@@ -8,6 +8,12 @@ function key(): string {
   return k;
 }
 
+class NessieError extends Error {
+  constructor(message: string, readonly status: number) {
+    super(message);
+  }
+}
+
 async function call(method: "GET" | "POST", path: string, body?: unknown): Promise<unknown> {
   const sep = path.includes("?") ? "&" : "?";
   const res = await fetch(`${BASE}${path}${sep}key=${encodeURIComponent(key())}`, {
@@ -16,7 +22,7 @@ async function call(method: "GET" | "POST", path: string, body?: unknown): Promi
     body: body ? JSON.stringify(body) : undefined,
   });
   const text = await res.text();
-  if (!res.ok) throw new Error(`Nessie ${method} ${path} -> ${res.status}: ${text.slice(0, 300)}`);
+  if (!res.ok) throw new NessieError(`Nessie ${method} ${path} -> ${res.status}: ${text.slice(0, 300)}`, res.status);
   try {
     return JSON.parse(text);
   } catch {
@@ -33,7 +39,8 @@ function createdId(res: unknown): string | null {
 
 type NessieCustomer = { _id: string; first_name: string; last_name: string };
 type NessieAccount = { _id: string; nickname: string; balance: number };
-type NessieTransfer = { _id: string; description?: string; amount: number; status?: string };
+// Lists return transfers keyed `id`; the create response's objectCreated uses `_id`.
+type NessieTransfer = { id?: string; _id?: string; description?: string; amount: number; status?: string };
 
 export async function createCustomer(firstName: string, lastName: string): Promise<string> {
   const res = await call("POST", "/customers", {
@@ -68,14 +75,21 @@ export async function getAccount(accountId: string): Promise<NessieAccount> {
   return (await call("GET", `/accounts/${accountId}`)) as NessieAccount;
 }
 
+// An account with no transfers answers 404 "No transfers found for this account".
 async function listOutgoingTransfers(fromAccountId: string): Promise<NessieTransfer[]> {
-  return (await call("GET", `/accounts/${fromAccountId}/transfers?type=payer`)) as NessieTransfer[];
+  try {
+    return (await call("GET", `/accounts/${fromAccountId}/transfers`)) as NessieTransfer[];
+  } catch (e) {
+    if (e instanceof NessieError && e.status === 404) return [];
+    throw e;
+  }
 }
 
 // Idempotency: Nessie has none, so every transfer carries our tag and we look for it before sending.
 export async function findTransferByTag(fromAccountId: string, tag: string): Promise<string | null> {
   const transfers = await listOutgoingTransfers(fromAccountId);
-  return transfers.find((t) => t.description?.includes(tag))?._id ?? null;
+  const t = transfers.find((t) => t.description?.includes(tag));
+  return t ? (t._id ?? t.id ?? null) : null;
 }
 
 export async function createTransfer(args: {
@@ -85,12 +99,13 @@ export async function createTransfer(args: {
   tag: string;
   memo: string;
 }): Promise<string> {
+  // The live API (TransferCreate) rejects medium and payee_id and requires status, so the payee account rides in
+  // the description. Balances do not move in this sandbox; the transfer is a record.
   const res = await call("POST", `/accounts/${args.fromAccountId}/transfers`, {
-    medium: "balance",
-    payee_id: args.toAccountId,
-    amount: args.amountCents / 100,
     transaction_date: new Date().toISOString().slice(0, 10),
-    description: `${args.tag} ${args.memo}`.slice(0, 140),
+    status: "completed",
+    amount: args.amountCents / 100,
+    description: `${args.tag} to:${args.toAccountId} ${args.memo}`.slice(0, 140),
   });
   const id = createdId(res) ?? (await findTransferByTag(args.fromAccountId, args.tag));
   if (!id) throw new Error(`Nessie transfer ${args.tag} not found after create`);
