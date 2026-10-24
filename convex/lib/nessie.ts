@@ -33,7 +33,7 @@ function createdId(res: unknown): string | null {
 
 type NessieCustomer = { _id: string; first_name: string; last_name: string };
 type NessieAccount = { _id: string; nickname: string; balance: number };
-// The transfers listing returns `id`, not `_id` (seen live on Oct 24); accept either.
+// POST answers with objectCreated._id, but GET /accounts/{id}/transfers lists each transfer as `id` (checked live 2026-10-24).
 type NessieTransfer = { _id?: string; id?: string; description?: string; amount: number; status?: string };
 
 export async function createCustomer(firstName: string, lastName: string): Promise<string> {
@@ -82,7 +82,7 @@ async function listOutgoingTransfers(fromAccountId: string): Promise<NessieTrans
 export async function findTransferByTag(fromAccountId: string, tag: string): Promise<string | null> {
   const transfers = await listOutgoingTransfers(fromAccountId);
   const t = transfers.find((t) => t.description?.includes(tag));
-  return t?._id ?? t?.id ?? null;
+  return t ? (t._id ?? t.id ?? null) : null;
 }
 
 export async function createTransfer(args: {

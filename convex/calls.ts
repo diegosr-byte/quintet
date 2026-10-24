@@ -22,7 +22,7 @@ export const forCase = query({
       .collect();
     return calls.map(({ toNumber, ...rest }) => ({
       ...rest,
-      toNumber: toNumber === WEB ? "web call" : `•••-${toNumber.replace(/\D/g, "").slice(-4)}`,
+      toNumber: toNumber === WEB ? "web call" : toNumber === "simulated" ? "simulated call" : `•••-${toNumber.replace(/\D/g, "").slice(-4)}`,
     }));
   },
 });

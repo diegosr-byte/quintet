@@ -36,8 +36,8 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        {/* Light only: the pastel palette is designed for a bright projector. */}
-        <ThemeProvider attribute="class" forcedTheme="light">
+        {/* Light by default (bright projector); the switch offers dark. The choice is remembered. */}
+        <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>
           <ConvexClientProvider>
             {children}
             <StatusWidget />

@@ -9,6 +9,7 @@ import { api } from "@/convex/_generated/api";
 import { Doc } from "@/convex/_generated/dataModel";
 import { AgentAvatar } from "@/components/agents";
 import { cn } from "@/lib/utils";
+import { WebCall } from "@/components/WebCall";
 
 type Call = FunctionReturnType<typeof api.calls.forCase>[number];
 
@@ -50,14 +51,20 @@ function CallCard({ call }: { call: Call }) {
   }, [lines, live]);
 
   const seconds = call.startedAt && call.endedAt ? Math.round((call.endedAt - call.startedAt) / 1000) : null;
-  const simulated = call.toNumber === "simulated";
+  const simulated = call.toNumber === "simulated" || call.toNumber === "simulated call";
+  const web = call.toNumber === "web call";
+  const title = simulated
+    ? "Simulated call"
+    : web
+      ? "Web call to the vendor (demo: answer in this browser)"
+      : `Calling ${call.toNumber}, the number on file`;
 
   return (
     <div className="soft-card overflow-hidden">
       <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border/70 px-4 py-3">
         <span className="inline-flex items-center gap-2 text-base">
           <PhoneCall className="size-4 text-muted-foreground" aria-hidden />
-          {simulated ? "Simulated call (eval)" : `Calling ${call.toNumber}, the number on file`}
+          {title}
         </span>
         {live ? (
           <span className="inline-flex items-center gap-1.5 rounded-full bg-[#FFE1E4] px-2.5 py-0.5 text-sm font-bold text-[#A3182B]">
@@ -103,6 +110,8 @@ function CallCard({ call }: { call: Call }) {
         <p className="p-4 text-base text-muted-foreground">{live ? "Waiting for someone to pick up…" : "No transcript recorded."}</p>
       )}
 
+      {web && live && <WebCall callId={call._id} caseId={call.caseId} status={call.status} />}
+
       {call.outcome && (
         <div className="border-t border-border/70 px-4 py-3">
           <span className={cn("inline-flex rounded-full px-3 py-1 text-base font-semibold", OUTCOMES[call.outcome].className)}>{OUTCOMES[call.outcome].label}</span>
@@ -111,3 +120,4 @@ function CallCard({ call }: { call: Call }) {
     </div>
   );
 }
+

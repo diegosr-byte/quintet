@@ -32,32 +32,56 @@
     --chart-4: 151 57% 78%;
     --chart-5: 256 100% 88%;
     --radius: 1rem;
+    --ink-intake: #2D4BA6;
+    --tint-intake: #EEF2FF;
+    --ink-verification: #7A5300;
+    --tint-verification: #FFF8E6;
+    --ink-caller: #9A3F1C;
+    --tint-caller: #FFF3EE;
+    --ink-payments: #17694A;
+    --tint-payments: #ECFAF3;
+    --ink-controller: #5B3EA8;
+    --tint-controller: #F5F0FF;
+    --ink-human: #20497A;
+    --tint-human: #F1F4F9;
+    --ink-system: #4A5568;
+    --tint-system: #F4F6FA;
   }
+  /* Dark: deep navy canvas, slightly lifted cards, soft light text. Same pastel agents. */
   .dark {
-    --background: 20 14.3% 4.1%;
-    --foreground: 60 9.1% 97.8%;
-    --card: 20 14.3% 4.1%;
-    --card-foreground: 60 9.1% 97.8%;
-    --popover: 20 14.3% 4.1%;
-    --popover-foreground: 60 9.1% 97.8%;
-    --primary: 60 9.1% 97.8%;
-    --primary-foreground: 24 9.8% 10%;
-    --secondary: 12 6.5% 15.1%;
-    --secondary-foreground: 60 9.1% 97.8%;
-    --muted: 12 6.5% 15.1%;
-    --muted-foreground: 24 5.4% 63.9%;
-    --accent: 12 6.5% 15.1%;
-    --accent-foreground: 60 9.1% 97.8%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 60 9.1% 97.8%;
-    --border: 12 6.5% 15.1%;
-    --input: 12 6.5% 15.1%;
-    --ring: 24 5.7% 82.9%;
-    --chart-1: 220 70% 50%;
-    --chart-2: 160 60% 45%;
-    --chart-3: 30 80% 55%;
-    --chart-4: 280 65% 60%;
-    --chart-5: 340 75% 55%;
+    --background: 222 32% 8%;
+    --foreground: 220 30% 93%;
+    --card: 222 26% 12%;
+    --card-foreground: 220 30% 93%;
+    --popover: 222 26% 12%;
+    --popover-foreground: 220 30% 93%;
+    --primary: 214 85% 76%;
+    --primary-foreground: 222 32% 10%;
+    --secondary: 222 20% 17%;
+    --secondary-foreground: 220 30% 93%;
+    --muted: 222 20% 17%;
+    --muted-foreground: 220 14% 66%;
+    --accent: 222 22% 19%;
+    --accent-foreground: 220 30% 93%;
+    --destructive: 354 80% 68%;
+    --destructive-foreground: 222 32% 10%;
+    --border: 222 18% 22%;
+    --input: 222 18% 26%;
+    --ring: 222 80% 70%;
+    --ink-intake: #AFC3FF;
+    --tint-intake: rgb(140 165 255 / 0.14);
+    --ink-verification: #F2CB72;
+    --tint-verification: rgb(245 190 70 / 0.13);
+    --ink-caller: #FFB896;
+    --tint-caller: rgb(255 160 120 / 0.13);
+    --ink-payments: #7EE2AE;
+    --tint-payments: rgb(90 210 150 / 0.13);
+    --ink-controller: #C9B6FF;
+    --tint-controller: rgb(180 150 255 / 0.14);
+    --ink-human: #9DC3F0;
+    --tint-human: rgb(150 180 230 / 0.12);
+    --ink-system: #A9B4C6;
+    --tint-system: rgb(170 180 200 / 0.10);
   }
 }
 
@@ -76,6 +100,9 @@
   .soft-card {
     @apply rounded-2xl border border-border/70 bg-card;
     box-shadow: 0 1px 2px rgb(28 43 69 / 0.04), 0 6px 20px rgb(28 43 69 / 0.06);
+  }
+  .dark .soft-card {
+    box-shadow: 0 1px 2px rgb(0 0 0 / 0.3), 0 8px 24px rgb(0 0 0 / 0.25);
   }
 }
 
@@ -99,3 +126,45 @@
 @media (prefers-reduced-motion: reduce) {
   .agent-eyes, .agent-busy { animation: none; }
 }
+
+/* Dark mode for the pastel accents. Components use fixed light-theme hex classes (verdicts, red flags,
+   status chips); these remap them to soft translucent tints and lighter text so nothing glares on navy. */
+.dark .text-\[\#A3182B\] { color: #FF8A9A; }
+.dark .text-\[\#0F6B3E\] { color: #7EE2AE; }
+.dark .text-\[\#7A4E00\] { color: #F5C969; }
+.dark .text-\[\#5B3EA8\] { color: #C9B6FF; }
+.dark .text-\[\#2D4BA6\] { color: #AFC3FF; }
+.dark .text-\[\#7A5300\] { color: #F2CB72; }
+.dark .text-\[\#9A3F1C\] { color: #FFB896; }
+.dark .text-\[\#8A1F2C\] { color: #FF9AA8; }
+.dark .text-\[\#20497A\] { color: #9DC3F0; }
+.dark .bg-\[\#FFE1E4\] { background-color: rgb(255 110 130 / 0.14); }
+.dark .bg-\[\#FFF3F4\] { background-color: rgb(255 110 130 / 0.14); }
+.dark .bg-\[\#FFF1F2\] { background-color: rgb(255 110 130 / 0.14); }
+.dark .bg-\[\#FFF7F8\] { background-color: rgb(255 110 130 / 0.14); }
+.dark .bg-\[\#FFFAFA\] { background-color: rgb(255 110 130 / 0.07); }
+.dark .bg-\[\#FFF0F2\] { background-color: rgb(255 110 130 / 0.14); }
+.dark .bg-\[\#FFF1C9\] { background-color: rgb(245 190 70 / 0.13); }
+.dark .bg-\[\#FFF9E8\] { background-color: rgb(245 190 70 / 0.13); }
+.dark .bg-\[\#FFF8E6\] { background-color: rgb(245 190 70 / 0.13); }
+.dark .bg-\[\#FFFBEF\] { background-color: rgb(245 190 70 / 0.08); }
+.dark .bg-\[\#DCF5E7\] { background-color: rgb(90 210 150 / 0.13); }
+.dark .bg-\[\#F0FAF4\] { background-color: rgb(90 210 150 / 0.13); }
+.dark .bg-\[\#ECFAF3\] { background-color: rgb(90 210 150 / 0.13); }
+.dark .bg-\[\#F3FCF7\] { background-color: rgb(90 210 150 / 0.08); }
+.dark .bg-\[\#B5E8CC\] { background-color: rgb(90 210 150 / 0.35); }
+.dark .bg-\[\#F5F0FF\] { background-color: rgb(180 150 255 / 0.15); }
+.dark .bg-\[\#EEF2FF\] { background-color: rgb(140 165 255 / 0.15); }
+.dark .bg-\[\#E6ECFF\] { background-color: rgb(140 165 255 / 0.15); }
+.dark .bg-\[\#FFF3EE\] { background-color: rgb(255 160 120 / 0.13); }
+.dark .hover\:bg-\[\#FFE1E4\]:hover { background-color: rgb(255 110 130 / 0.22); }
+.dark .hover\:bg-\[\#DCF5E7\]:hover { background-color: rgb(90 210 150 / 0.22); }
+.dark .border-\[\#F5BFC6\] { border-color: rgb(255 120 140 / 0.35); }
+.dark .border-\[\#F6D0D5\] { border-color: rgb(255 120 140 / 0.30); }
+.dark .border-\[\#E07A88\] { border-color: rgb(255 120 140 / 0.55); }
+.dark .border-\[\#B5E8CC\] { border-color: rgb(90 210 150 / 0.30); }
+.dark .border-\[\#CFEEDC\] { border-color: rgb(90 210 150 / 0.28); }
+.dark .border-\[\#F6DC9A\] { border-color: rgb(245 190 70 / 0.35); }
+.dark .border-\[\#F6E3B0\] { border-color: rgb(245 190 70 / 0.30); }
+.dark .border-\[\#E9C46A\] { border-color: rgb(245 190 70 / 0.45); }
+.dark .border-\[\#A8BEFF\] { border-color: rgb(140 165 255 / 0.50); }

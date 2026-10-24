@@ -18,6 +18,7 @@ import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
 import { QRCodeSVG } from "qrcode.react";
 import { Button } from "@/components/ui/button";
+import { ThemeSwitch } from "@/components/ThemeSwitch";
 import { AgentAvatar } from "@/components/agents";
 import { SyntheticBadge } from "@/components/case-ui";
 import { cn } from "@/lib/utils";
@@ -96,7 +97,6 @@ type Knobs = {
   otherCallback: boolean;
   hidden: boolean;
   duplicate: boolean;
-  breakPayment: boolean;
 };
 
 const ROUTINE: Knobs = {
@@ -111,7 +111,6 @@ const ROUTINE: Knobs = {
   otherCallback: false,
   hidden: false,
   duplicate: false,
-  breakPayment: false,
 };
 
 const SCENARIOS: { label: string; hint: string; knobs: Partial<Knobs> }[] = [
@@ -176,6 +175,8 @@ export default function ConsolePage() {
   const ingest = useMutation(api.documents.ingest);
   const [k, setK] = useState<Knobs>(ROUTINE);
   const [busy, setBusy] = useState(false);
+  // Kept apart from the knobs so it survives clicking a scenario.
+  const [breakPayment, setBreakPayment] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const set = (patch: Partial<Knobs>) =>
@@ -232,8 +233,7 @@ export default function ConsolePage() {
         fileName: doc.fileName,
         mimeType: doc.mimeType,
         ...(isReceipt && { submittedByPartyKey: k.employee }),
-        // Set at creation: an ALLOW pays in ~10 s, too fast to tick the box on the case page.
-        ...(k.breakPayment && { faultInjection: true }),
+        ...(breakPayment && { faultInjection: true }),
       });
       router.push(`/case/${caseId}`);
     } catch (e) {
@@ -245,12 +245,15 @@ export default function ConsolePage() {
 
   return (
     <main className="mx-auto max-w-6xl space-y-6 p-6 pb-28 text-lg">
-      <Link
-        href="/"
-        className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground"
-      >
-        <ArrowLeft className="size-5" aria-hidden /> Ops board
-      </Link>
+      <div className="flex items-center justify-between">
+        <Link
+          href="/"
+          className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground"
+        >
+          <ArrowLeft className="size-5" aria-hidden /> Ops board
+        </Link>
+        <ThemeSwitch />
+      </div>
 
       <header className="flex flex-wrap items-center gap-4">
         <AgentAvatar seat="intake" size={56} happy />
@@ -288,6 +291,15 @@ export default function ConsolePage() {
                   <div className="text-sm text-muted-foreground">{s.hint}</div>
                 </button>
               ))}
+            </div>
+            {/* Set before the case exists: the payment lands ~10 s after Generate, too fast to tick afterwards. */}
+            <div className="mt-3 rounded-2xl border border-dashed px-2">
+              <Toggle
+                checked={breakPayment}
+                onChange={setBreakPayment}
+                label="Break the payment"
+                hint="The first transfer fails after the bank accepts it. Penny retries and pays exactly once."
+              />
             </div>
           </div>
 
@@ -439,18 +451,6 @@ export default function ConsolePage() {
               onChange={(v) => set({ duplicate: v })}
               label="Re-send an invoice that was already paid"
               hint="Kestrel Signs KS-1041, $450"
-            />
-          </fieldset>
-
-          <fieldset className="space-y-1">
-            <legend className="mb-2 text-base text-muted-foreground">
-              Test the payment
-            </legend>
-            <Toggle
-              checked={k.breakPayment}
-              onChange={(v) => set({ breakPayment: v })}
-              label="Break the payment"
-              hint="Crash once after the bank accepts it; the retry must find it, not pay twice"
             />
           </fieldset>
 

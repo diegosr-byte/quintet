@@ -10,6 +10,10 @@ import { FunctionReturnType } from "convex/server";
 import { VerdictButton, WhyPanel } from "@/components/CaseWhy";
 import { Button } from "@/components/ui/button";
 import { AgentAvatar, AGENTS, TEAM } from "@/components/agents";
+import { ActivityFeed } from "@/components/ActivityFeed";
+import { Collapsible } from "@/components/Collapsible";
+import { ResetDemo } from "@/components/ResetDemo";
+import { ThemeSwitch } from "@/components/ThemeSwitch";
 import { AgentTimeline } from "@/components/AgentTimeline";
 import { StatusDot, useTeamStatus } from "@/components/team-status";
 import {
@@ -90,16 +94,27 @@ export default function OpsBoard() {
             </h1>
             <SyntheticBadge />
           </div>
-          <nav aria-label="Pages" className="mt-1 flex gap-4 text-base font-medium">
-            <Link href="/scorecard" className="text-muted-foreground hover:text-foreground">
+          <nav
+            aria-label="Pages"
+            className="mt-1 flex items-center gap-4 text-base font-medium"
+          >
+            <Link
+              href="/scorecard"
+              className="text-muted-foreground hover:text-foreground"
+            >
               Scorecard
             </Link>
-            <Link href="/policy" className="text-muted-foreground hover:text-foreground">
+            <Link
+              href="/policy"
+              className="text-muted-foreground hover:text-foreground"
+            >
               Policy
             </Link>
+            <ThemeSwitch />
           </nav>
         </div>
         <div className="flex flex-wrap items-center gap-3">
+          <ResetDemo />
           <Button
             asChild
             size="lg"
@@ -140,14 +155,15 @@ export default function OpsBoard() {
         <h2 id="team-heading" className="mb-3 text-2xl font-semibold">
           Your team
         </h2>
-        <ul className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-5">
+        {/* Flex with fixed fractions so a short last row (the bottom 2 of 5) sits centered. */}
+        <ul className="flex flex-wrap justify-center gap-3">
           {TEAM.map((seat) => {
             const agent = AGENTS[seat];
             const count = workload.get(seat) ?? 0;
             return (
               <li
                 key={seat}
-                className="soft-card relative flex flex-col gap-3 p-4"
+                className="soft-card relative flex w-full flex-col gap-3 p-4 sm:w-[calc((100%-0.75rem)/2)] md:w-[calc((100%-1.5rem)/3)] xl:w-[calc((100%-3rem)/5)]"
               >
                 <StatusDot
                   seat={seat}
@@ -197,10 +213,7 @@ export default function OpsBoard() {
       </section>
 
       <div className="grid gap-6 lg:grid-cols-[1fr_24rem]">
-        <section aria-labelledby="cases-heading">
-          <h2 id="cases-heading" className="mb-3 text-2xl font-semibold">
-            Cases
-          </h2>
+        <Collapsible title="Cases" count={cases?.length} className="min-w-0">
           {cases === undefined ? (
             <p className="text-muted-foreground">Loading…</p>
           ) : cases.length === 0 ? (
@@ -217,33 +230,13 @@ export default function OpsBoard() {
               ))}
             </ul>
           )}
-        </section>
+        </Collapsible>
 
-        <aside aria-labelledby="activity-heading">
-          <h2 id="activity-heading" className="mb-3 text-2xl font-semibold">
-            Activity
-          </h2>
-          <ol className="soft-card divide-y divide-border/70">
-            {(recent ?? []).slice(0, 15).map((a) => (
-              <li key={a._id} className="flex gap-3 p-4 text-base">
-                <AgentAvatar seat={a.seat} size={32} className="mt-0.5" />
-                <div className="min-w-0">
-                  <div className="flex justify-between gap-2">
-                    <span
-                      className="font-semibold"
-                      style={{ color: AGENTS[a.seat].ink }}
-                    >
-                      {AGENTS[a.seat].name}
-                    </span>
-                    <span className="text-sm text-muted-foreground tabular-nums">
-                      {formatTime(a._creationTime)}
-                    </span>
-                  </div>
-                  <p className="leading-snug">{a.summary}</p>
-                </div>
-              </li>
-            ))}
-          </ol>
+        {/* min-w-0: let one-line summaries truncate instead of widening the grid column */}
+        <aside className="min-w-0">
+          <Collapsible title="Activity" count={recent && (recent.length >= 200 ? "200+" : recent.length)}>
+            <ActivityFeed actions={recent} />
+          </Collapsible>
         </aside>
       </div>
     </main>
