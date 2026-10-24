@@ -76,22 +76,22 @@ export default function CasePage() {
         )}
       </header>
 
-      {/* The demo moment: failed checks big enough to read from the back of the room. */}
+      {/* The demo moment: failed checks, calm but unmissable (still 18 px+ for the projector). */}
       {redFlags.length > 0 && (
-        <section aria-labelledby="flags-heading" className="rounded-2xl border-2 border-[#F5BFC6] bg-[#FFF1F2] p-6">
-          <h2 id="flags-heading" className="mb-5 flex items-center gap-3 text-2xl font-bold text-[#A3182B]">
-            <AgentAvatar seat="verification" size={44} />
+        <section aria-labelledby="flags-heading" className="soft-card border-[#F6D0D5] bg-[#FFFAFA] p-5">
+          <h2 id="flags-heading" className="mb-4 flex items-center gap-2.5 text-xl font-semibold text-[#A3182B]">
+            <AgentAvatar seat="verification" size={32} />
             Vera found {redFlags.length} red flag{redFlags.length === 1 ? "" : "s"}
           </h2>
-          <ul className="space-y-4">
+          <ul className="space-y-3">
             {redFlags.map((ch) => (
-              <li key={ch._id} className="flex items-start gap-4">
-                <span className="mt-0.5 flex size-11 shrink-0 items-center justify-center rounded-full bg-[#FFE1E4]">
-                  <OctagonX className="size-7 text-[#A3182B]" strokeWidth={2.5} aria-hidden />
+              <li key={ch._id} className="flex items-start gap-3">
+                <span className="mt-0.5 flex size-7 shrink-0 items-center justify-center rounded-full bg-[#FFF0F2]">
+                  <OctagonX className="size-4 text-[#A3182B]" strokeWidth={2.25} aria-hidden />
                 </span>
                 <div>
-                  <div className="text-3xl font-bold text-[#7D1220]">{failLabel(ch.kind)}</div>
-                  <div className="text-xl text-[#6B3A40]">{ch.detail}</div>
+                  <div className="text-xl font-semibold text-[#8A1F2C]">{failLabel(ch.kind)}</div>
+                  <div className="text-lg text-muted-foreground">{ch.detail}</div>
                 </div>
               </li>
             ))}

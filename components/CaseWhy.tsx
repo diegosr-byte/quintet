@@ -34,7 +34,7 @@ export function VerdictButton({
       <ChevronDown
         className={cn(
           "text-muted-foreground transition-transform duration-200 group-hover:text-foreground",
-          size === "xl" ? "size-7" : "size-5",
+          size === "xl" ? "size-5" : "size-4",
           open && "rotate-180",
         )}
         aria-hidden

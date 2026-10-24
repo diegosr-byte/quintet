@@ -27,17 +27,18 @@ export function formatTime(ms: number) {
 
 // Pastel fills with deep text and icons: soft on the eye, still readable from the back of the room.
 const VERDICTS: Record<Verdict, { icon: typeof CircleCheck; className: string }> = {
-  ALLOW: { icon: CircleCheck, className: "border-[#B5E8CC] bg-[#DCF5E7] text-[#0F6B3E]" },
-  ASK: { icon: TriangleAlert, className: "border-[#F6DC9A] bg-[#FFF1C9] text-[#7A4E00]" },
-  BLOCK: { icon: OctagonX, className: "border-[#F5BFC6] bg-[#FFE1E4] text-[#A3182B]" },
+  ALLOW: { icon: CircleCheck, className: "border-[#CFEEDC] bg-[#F0FAF4] text-[#0F6B3E]" },
+  ASK: { icon: TriangleAlert, className: "border-[#F6E3B0] bg-[#FFF9E8] text-[#7A4E00]" },
+  BLOCK: { icon: OctagonX, className: "border-[#F6D0D5] bg-[#FFF3F4] text-[#A3182B]" },
 };
 
 export function VerdictBadge({ verdict, size = "md" }: { verdict: Verdict | null; size?: "md" | "xl" }) {
-  const sizing = size === "xl" ? "gap-2.5 rounded-2xl px-5 py-3 text-3xl" : "gap-1.5 rounded-full px-3 py-1";
-  const iconSize = size === "xl" ? "size-8" : "size-5";
+  // Quiet by default: small pills that inform without shouting. xl is the case page header.
+  const sizing = size === "xl" ? "gap-2 rounded-full px-4 py-1.5 text-xl" : "gap-1 rounded-full px-2.5 py-0.5 text-sm";
+  const iconSize = size === "xl" ? "size-5" : "size-3.5";
   if (!verdict) {
     return (
-      <span className={cn("inline-flex items-center border bg-muted font-semibold text-muted-foreground", sizing)}>
+      <span className={cn("inline-flex items-center border bg-muted font-medium text-muted-foreground", sizing)}>
         <Clock className={iconSize} aria-hidden />
         PENDING
       </span>
@@ -45,8 +46,8 @@ export function VerdictBadge({ verdict, size = "md" }: { verdict: Verdict | null
   }
   const { icon: Icon, className } = VERDICTS[verdict];
   return (
-    <span className={cn("inline-flex items-center border font-bold tracking-wide", className, sizing)}>
-      <Icon className={iconSize} strokeWidth={2.5} aria-hidden />
+    <span className={cn("inline-flex items-center border font-semibold tracking-wide", className, sizing)}>
+      <Icon className={iconSize} strokeWidth={2.25} aria-hidden />
       {verdict}
     </span>
   );
@@ -147,15 +148,15 @@ export function PipelineSteps({ c }: { c: Pick<Doc<"cases">, "status" | "amountC
 export function StatusChip({ status }: { status: CaseStatus }) {
   const tone =
     status === "paid"
-      ? "bg-[#DCF5E7] text-[#0F6B3E]"
+      ? "bg-[#F0FAF4] text-[#0F6B3E]"
       : status === "blocked" || status === "rejected" || status === "failed" || status === "awaiting_call"
-        ? "bg-[#FFE1E4] text-[#A3182B]"
+        ? "bg-[#FFF3F4] text-[#A3182B]"
         : status === "awaiting_approval"
-          ? "bg-[#FFF1C9] text-[#7A4E00]"
-          : "bg-[#E6ECFF] text-[#2D4BA6]";
+          ? "bg-[#FFF9E8] text-[#7A4E00]"
+          : "bg-[#EEF2FF] text-[#2D4BA6]";
   return (
-    <span className={cn("inline-flex items-center gap-1.5 rounded-full px-3 py-0.5 font-semibold", tone)}>
-      {(status === "received" || status === "extracting" || status === "checking" || status === "paying") && <LoaderCircle className="size-4 animate-spin" aria-hidden />}
+    <span className={cn("inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-sm font-medium", tone)}>
+      {(status === "received" || status === "extracting" || status === "checking" || status === "paying") && <LoaderCircle className="size-3.5 animate-spin" aria-hidden />}
       {statusLabel(status)}
     </span>
   );
