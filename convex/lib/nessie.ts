@@ -69,7 +69,12 @@ export async function getAccount(accountId: string): Promise<NessieAccount> {
 }
 
 async function listOutgoingTransfers(fromAccountId: string): Promise<NessieTransfer[]> {
-  return (await call("GET", `/accounts/${fromAccountId}/transfers?type=payer`)) as NessieTransfer[];
+  try {
+    return (await call("GET", `/accounts/${fromAccountId}/transfers?type=payer`)) as NessieTransfer[];
+  } catch (e) {
+    if (String((e as Error).message).includes("No transfers found")) return []; // Nessie 404s on an account with no transfers yet
+    throw e;
+  }
 }
 
 // Idempotency: Nessie has none, so every transfer carries our tag and we look for it before sending.
@@ -86,11 +91,12 @@ export async function createTransfer(args: {
   memo: string;
 }): Promise<string> {
   const res = await call("POST", `/accounts/${args.fromAccountId}/transfers`, {
-    medium: "balance",
-    payee_id: args.toAccountId,
+    // The sandbox's TransferCreate takes only status, amount, date and description (medium and payee_id are rejected),
+    // so the payee travels in the description, like the other teams' records.
+    status: "completed",
     amount: args.amountCents / 100,
     transaction_date: new Date().toISOString().slice(0, 10),
-    description: `${args.tag} ${args.memo}`.slice(0, 140),
+    description: `${args.tag} ${args.memo} -> ${args.toAccountId}`.slice(0, 140),
   });
   const id = createdId(res) ?? (await findTransferByTag(args.fromAccountId, args.tag));
   if (!id) throw new Error(`Nessie transfer ${args.tag} not found after create`);

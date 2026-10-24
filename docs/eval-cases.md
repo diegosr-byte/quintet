@@ -23,7 +23,7 @@ Fictional names; searched Oct 22–23; no matching business was found. Names mar
 | lanternfish | vendor | Lanternfish Paper Supply (paper wholesaler, sole proprietor) | Yes, paid before; bank ••0421 (routing 99…) | — (verified at onboarding) | `callTargetPhone` = Josiah's phone. Josiah plays this vendor in the demo |
 | paperkite | vendor | Paperkite Couriers | Yes, paid before | — | |
 | saltmarsh | vendor | Saltmarsh Cleaning Services | Yes, paid before | — | |
-| kestrel* | vendor | Kestrel Signs | Yes, paid before | — | Seed a paid $450.00 invoice from 3 days ago (for E23) |
+| kestrel | vendor | Kestrel Signs | Yes, paid before | — | Seed a paid $450.00 invoice from 3 days ago (for E23) |
 | employeeA–D | employee | Employee A–D (SYNTHETIC) | Yes, reimbursed before | — | Each has a Nessie account |
 
 **Phones and personas:**

@@ -17,4 +17,4 @@ A case passes when its verdict is one of `expected` **and** money moved only if 
 E07-E10 use generated receipts. To use real photos instead, upload them once on `/upload` and have the runner ingest those files for the same ids; keep E19 pointed at E07's file.
 
 ## Names
-All vendor names are fictional and were searched Oct 22-23 with no matching business: Lanternfish Paper Supply, Paperkite Couriers, Saltmarsh Cleaning Services, Driftglass Equipment Repair, Brightwater Electric, Cobalt Machine Works, Marigold Packaging, Larkspur Photo Studio. **Kestrel Signs has not been searched.**
+All vendor names are fictional and were searched Oct 22-23 with no matching business: Lanternfish Paper Supply, Paperkite Couriers, Saltmarsh Cleaning Services, Driftglass Equipment Repair, Brightwater Electric, Cobalt Machine Works, Marigold Packaging, Larkspur Photo Studio. Kestrel Signs was searched Oct 24: no US business or site found; the only hit is a 2011 UK sign-making forum thread naming a "Kestrel" sign-box supplier. Not a match for a US print-shop vendor, so we kept it. Rename it (seed.ts, cases.ts, factory.ts, docs) if a judge ever asks.
