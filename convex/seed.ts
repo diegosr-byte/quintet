@@ -89,10 +89,11 @@ export const hasPrimaryOrg = internalQuery({
 });
 
 // Creates Nessie customers + checking accounts, then the org. Nessie data is public: names are synthetic.
+// evals.run passes isEval: true for a fresh org per run, so caps and duplicates don't leak between runs.
 export const run = internalAction({
-  args: {},
-  handler: async (ctx): Promise<Id<"orgs">> => {
-    if (await ctx.runQuery(internal.seed.hasPrimaryOrg, {})) {
+  args: { isEval: v.optional(v.boolean()) },
+  handler: async (ctx, { isEval }): Promise<Id<"orgs">> => {
+    if (!isEval && (await ctx.runQuery(internal.seed.hasPrimaryOrg, {}))) {
       throw new Error("Already seeded. Clear the tables in the dashboard to re-seed.");
     }
     const nonce = Math.random().toString(36).slice(2, 6).toUpperCase();
@@ -130,8 +131,8 @@ export const run = internalAction({
       }),
     );
     const orgId: Id<"orgs"> = await ctx.runMutation(internal.seed.createOrg, {
-      name: BUSINESS_NAME,
-      isEval: false,
+      name: isEval ? `${BUSINESS_NAME} (eval)` : BUSINESS_NAME,
+      isEval: isEval ?? false,
       nessieAccountId: businessAccount,
       parties,
       placeholderStorageId: placeholder,
