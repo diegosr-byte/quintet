@@ -96,6 +96,7 @@ type Knobs = {
   otherCallback: boolean;
   hidden: boolean;
   duplicate: boolean;
+  breakPayment: boolean;
 };
 
 const ROUTINE: Knobs = {
@@ -110,6 +111,7 @@ const ROUTINE: Knobs = {
   otherCallback: false,
   hidden: false,
   duplicate: false,
+  breakPayment: false,
 };
 
 const SCENARIOS: { label: string; hint: string; knobs: Partial<Knobs> }[] = [
@@ -230,6 +232,8 @@ export default function ConsolePage() {
         fileName: doc.fileName,
         mimeType: doc.mimeType,
         ...(isReceipt && { submittedByPartyKey: k.employee }),
+        // Set at creation: an ALLOW pays in ~10 s, too fast to tick the box on the case page.
+        ...(k.breakPayment && { faultInjection: true }),
       });
       router.push(`/case/${caseId}`);
     } catch (e) {
@@ -435,6 +439,18 @@ export default function ConsolePage() {
               onChange={(v) => set({ duplicate: v })}
               label="Re-send an invoice that was already paid"
               hint="Kestrel Signs KS-1041, $450"
+            />
+          </fieldset>
+
+          <fieldset className="space-y-1">
+            <legend className="mb-2 text-base text-muted-foreground">
+              Test the payment
+            </legend>
+            <Toggle
+              checked={k.breakPayment}
+              onChange={(v) => set({ breakPayment: v })}
+              label="Break the payment"
+              hint="Crash once after the bank accepts it; the retry must find it, not pay twice"
             />
           </fieldset>
 

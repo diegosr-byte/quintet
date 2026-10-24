@@ -33,7 +33,8 @@ function createdId(res: unknown): string | null {
 
 type NessieCustomer = { _id: string; first_name: string; last_name: string };
 type NessieAccount = { _id: string; nickname: string; balance: number };
-type NessieTransfer = { _id: string; description?: string; amount: number; status?: string };
+// The transfers listing returns `id`, not `_id` (seen live on Oct 24); accept either.
+type NessieTransfer = { _id?: string; id?: string; description?: string; amount: number; status?: string };
 
 export async function createCustomer(firstName: string, lastName: string): Promise<string> {
   const res = await call("POST", "/customers", {
@@ -80,7 +81,8 @@ async function listOutgoingTransfers(fromAccountId: string): Promise<NessieTrans
 // Idempotency: Nessie has none, so every transfer carries our tag and we look for it before sending.
 export async function findTransferByTag(fromAccountId: string, tag: string): Promise<string | null> {
   const transfers = await listOutgoingTransfers(fromAccountId);
-  return transfers.find((t) => t.description?.includes(tag))?._id ?? null;
+  const t = transfers.find((t) => t.description?.includes(tag));
+  return t?._id ?? t?.id ?? null;
 }
 
 export async function createTransfer(args: {
