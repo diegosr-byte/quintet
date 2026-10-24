@@ -8,6 +8,7 @@ import {
   OctagonX,
   TriangleAlert,
 } from "lucide-react";
+import type { ReactNode } from "react";
 import { Doc } from "@/convex/_generated/dataModel";
 import { cn } from "@/lib/utils";
 import { AgentAvatar, Seat } from "@/components/agents";
@@ -32,7 +33,15 @@ const VERDICTS: Record<Verdict, { icon: typeof CircleCheck; className: string }>
   BLOCK: { icon: OctagonX, className: "border-[#F6D0D5] bg-[#FFF3F4] text-[#A3182B]" },
 };
 
-export function VerdictBadge({ verdict, size = "md" }: { verdict: Verdict | null; size?: "md" | "xl" }) {
+export function VerdictBadge({
+  verdict,
+  size = "md",
+  children,
+}: {
+  verdict: Verdict | null;
+  size?: "md" | "xl";
+  children?: ReactNode; // trailing content inside the pill, e.g. a dropdown arrow
+}) {
   // Quiet by default: small pills that inform without shouting. xl is the case page header.
   const sizing = size === "xl" ? "gap-2 rounded-full px-4 py-1.5 text-xl" : "gap-1 rounded-full px-2.5 py-0.5 text-sm";
   const iconSize = size === "xl" ? "size-5" : "size-3.5";
@@ -41,6 +50,7 @@ export function VerdictBadge({ verdict, size = "md" }: { verdict: Verdict | null
       <span className={cn("inline-flex items-center border bg-muted font-medium text-muted-foreground", sizing)}>
         <Clock className={iconSize} aria-hidden />
         PENDING
+        {children}
       </span>
     );
   }
@@ -49,6 +59,7 @@ export function VerdictBadge({ verdict, size = "md" }: { verdict: Verdict | null
     <span className={cn("inline-flex items-center border font-semibold tracking-wide", className, sizing)}>
       <Icon className={iconSize} strokeWidth={2.25} aria-hidden />
       {verdict}
+      {children}
     </span>
   );
 }
