@@ -5,10 +5,16 @@
 - This JSON holds the *parameters*. It's stored in `policyVersions.rules`.
 - Humans approve new versions. In the Droid stretch, Droid edits this JSON.
 
-**Source policy (TODO, Diego, before Friday):**
-1. Link one real, published small-business expense and approval policy or template you read (for example from a state small-business office or an accounting firm). Don't use a company's private policy.
-2. For each rule in it, note which key below it maps to.
-3. Put anything that doesn't fit under "Unmapped policy rules".
+**Source policy:** Glitter, ["Expense Reimbursement Policy"](https://www.glitter.io/blog/process-documentation/expense-reimbursement-policy), a published template (a vendor blog, not a regulator; its dollar figures are examples, and it says "The dollar figures are yours to set").
+
+| Source rule | Maps to |
+|---|---|
+| Approval tiers: up to $250 manager, $250–$1,000 department head, over $1,000 finance director | `caps.ownerAboveCents` ($500) and `caps.accountantAboveCents` ($1,000) (R4). Our top tier matches; we collapsed the bottom two. |
+| Itemized receipt with date, vendor, amount | `requiredFields.receipt`, `reimbursements.requireItemized` (R0, R8) |
+| Submit within 30 days ("most companies require...") | `reimbursements.maxAgeDays` = 30 (R8) |
+| Non-reimbursable: alcohol (unless pre-approved) | `reimbursements.disallowedCategories` (R8). We have no pre-approval path, so alcohol is always ASK. |
+
+**Fraud evidence (primary source):** FBI IC3, [2025 Internet Crime Report](https://www.ic3.gov/AnnualReport/Reports/2025_IC3Report.pdf), Business Email Compromise: **24,768 complaints and $3,046,598,558 in reported losses in 2025** (p. 7–8), the second-largest loss category. The [2024 report](https://www.ic3.gov/AnnualReport/Reports/2024_IC3Report.pdf) had 21,442 complaints and $2,770,151,146 (p. 9–10). The IC3 definition (2024 report, Appendix B) names "suppliers and/or businesses regularly performing wire transfer payments" as the target and includes compromised "phone numbers", which is why Quintet's callback goes to the number on file, not the one on the invoice. Reported complaints only, so the real figure is higher.
 
 ## Default rules, v1
 ```json
@@ -71,4 +77,13 @@
 Any loosened key goes into `loosened[]`, and the new version needs explicit human approval.
 
 ## Unmapped policy rules
-- (Diego: fill in from the policy you read)
+From the Glitter template; none of these is in the gate today:
+- **No self-approval:** "The person who incurs an expense cannot approve their own reimbursement." Closest we have is `submittedByPartyKey` on reimbursements; no rule checks it against the approver.
+- Meals need attendee names and affiliations.
+- Claims need a project or cost-center code.
+- Pre-approval for travel and large expenses.
+- Per diems for meals and incidentals; IRS mileage rate.
+- Other non-reimbursables: traffic fines, late fees, personal subscriptions.
+- Professional development needs prior approval.
+- Out-of-policy exceptions go to the controller with a written rationale.
+- Not covered by the source at all, but in our gate: duplicates (R6), split purchases (R9), vendor detail changes (R2), CRS (R3), injection (R7). These come from the fraud evidence above, not from a policy template.
