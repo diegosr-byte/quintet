@@ -51,6 +51,9 @@ export const begin = internalMutation({
       await ctx.db.patch(caseId, { status: "paid" });
       return null;
     }
+    // One attempt at a time: a pending row means an attempt is in flight (or died mid-send), so a second
+    // execute must not send in parallel. Retries come only from `fail`, which sets the row to failed first.
+    if (payment?.status === "pending") return null;
     if (!payment) {
       const id = await ctx.db.insert("payments", {
         caseId,
@@ -86,7 +89,16 @@ export const begin = internalMutation({
       memo: `${party.displayName} ${c.invoiceNumber ?? ""}`.trim(),
       attempt,
       faultInjection: c.faultInjection,
+      sentTransferId: payment.nessieTransferId,
     };
+  },
+});
+
+// Written the moment Nessie answers, so a later failure (the succeed mutation, a crash) can't lose the transfer.
+export const recordSent = internalMutation({
+  args: { paymentId: v.id("payments"), nessieTransferId: v.string() },
+  handler: async (ctx, { paymentId, nessieTransferId }) => {
+    await ctx.db.patch(paymentId, { nessieTransferId });
   },
 });
 
@@ -107,7 +119,7 @@ export const succeed = internalMutation({
       seat: "payments",
       kind: "payment_succeeded",
       summary: foundByTag
-        ? `Found the transfer already sent (${nessieTransferId}) by its tag; not sending again.`
+        ? `Found the transfer already sent (${nessieTransferId}); not sending again.`
         : `Paid. Nessie transfer ${nessieTransferId}.`,
       data: { paymentId, nessieTransferId, foundByTag },
     });
@@ -141,7 +153,8 @@ export const execute = internalAction({
     if (!p) return;
 
     try {
-      let transferId = await findTransferByTag(p.fromAccountId, p.tag);
+      // Our own record first, then Nessie by tag; send only if neither has it.
+      let transferId = p.sentTransferId ?? (await findTransferByTag(p.fromAccountId, p.tag));
       const foundByTag = transferId !== null;
       if (!transferId) {
         if (await ctx.runQuery(internal.orgs.killSwitchOn, { orgId: p.orgId })) {
@@ -154,8 +167,9 @@ export const execute = internalAction({
           tag: p.tag,
           memo: p.memo,
         });
-        // Demo toggle (DEMO-2): crash after Nessie succeeded, so the retry must find it by tag.
+        // Demo toggle (DEMO-2): crash after Nessie succeeded but before we recorded it, so the retry must find it by tag.
         if (p.faultInjection && p.attempt === 1) throw new Error("injected fault after the transfer was sent");
+        await ctx.runMutation(internal.payments.recordSent, { paymentId: p.paymentId, nessieTransferId: transferId });
       }
       await ctx.runMutation(internal.payments.succeed, { caseId, paymentId: p.paymentId, nessieTransferId: transferId, foundByTag });
     } catch (e) {
