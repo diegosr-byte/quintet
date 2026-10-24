@@ -21,8 +21,8 @@ export function StatusWidget() {
     return () => window.removeEventListener("keydown", onKey);
   }, [open]);
 
-  // The phone upload page stays single-purpose.
-  if (loading || pathname === "/upload") return null;
+  // The phone pages (receipt upload, vendor phone) stay single-purpose.
+  if (loading || pathname === "/upload" || pathname === "/vendor") return null;
 
   const busy = TEAM.filter((seat) => (workload.get(seat) ?? 0) > 0);
   const summary = frozen ? "Payments frozen" : inProgress > 0 ? `${inProgress} in progress` : "All quiet";

@@ -19,6 +19,13 @@ const OUTCOMES: Outcome[] = ["confirmed_change", "denied_change", "unclear", "no
 // Time for Cal to say goodbye after reporting the outcome.
 const HANGUP_AFTER_OUTCOME_MS = 4000;
 
+// Convex wraps server errors ("[CONVEX A(calls:startWebCall)] … Uncaught Error: <message> at handler …");
+// show just the message.
+function readable(e: unknown): string {
+  const message = e instanceof Error ? e.message : String(e);
+  return message.match(/Uncaught Error: (.*?)(?: at handler|\n|$)/)?.[1]?.trim() ?? message;
+}
+
 function toBase64(pcm: Int16Array): string {
   const bytes = new Uint8Array(pcm.buffer);
   let s = "";
@@ -74,7 +81,7 @@ export function WebCall({ callId, caseId, status }: { callId: Id<"calls">; caseI
         try {
           await reportWebOutcome({ callId, cartesiaCallId, outcome: outcome ?? fallback, transcript });
         } catch (e) {
-          setError(e instanceof Error ? e.message : String(e));
+          setError(readable(e));
         }
       } else {
         setPhase("ringing");
@@ -165,9 +172,18 @@ export function WebCall({ callId, caseId, status }: { callId: Id<"calls">; caseI
         }
       };
     } catch (e) {
-      setError(e instanceof Error ? e.message : String(e));
+      setError(readable(e));
       await hangup("unclear");
     }
+  }
+
+  // Stage fallback: say the vendor's line out loud (speech synthesis works offline), then record it.
+  function simulateNo() {
+    if ("speechSynthesis" in window) {
+      window.speechSynthesis.cancel();
+      window.speechSynthesis.speak(new SpeechSynthesisUtterance("No, we didn't change anything."));
+    }
+    void simulate({ caseId });
   }
 
   const live = phase === "live" || phase === "ending";
@@ -194,7 +210,7 @@ export function WebCall({ callId, caseId, status }: { callId: Id<"calls">; caseI
             {phase === "ending" ? "Ending…" : "Hang up"}
           </Button>
         )}
-        <Button variant="ghost" onClick={() => void simulate({ caseId })} title="Fallback: record the vendor saying they changed nothing">
+        <Button variant="ghost" onClick={simulateNo} title="Fallback: record the vendor saying they changed nothing">
           Simulate &ldquo;no&rdquo;
         </Button>
       </div>
