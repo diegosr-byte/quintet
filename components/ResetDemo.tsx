@@ -9,8 +9,8 @@ import { makeFunctionReference } from "convex/server";
 import { LoaderCircle, RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-// Diego's (agreed name). Referenced by name so the button builds before it's deployed.
-const resetDemo = makeFunctionReference<"action", Record<string, never>, unknown>("demo:reset");
+// convex/seed.ts resetDemo. Referenced by name so the button builds without regenerated types.
+const resetDemo = makeFunctionReference<"action", Record<string, never>, unknown>("seed:resetDemo");
 
 export function ResetDemo() {
   const reset = useAction(resetDemo);
