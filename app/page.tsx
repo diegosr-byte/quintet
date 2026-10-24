@@ -17,7 +17,7 @@ import {
 
 export default function OpsBoard() {
   const cases = useQuery(api.cases.list, {});
-  const recent = useQuery(api.audit.recent, { limit: 50 });
+  const recent = useQuery(api.audit.recent, { limit: 200 });
   const setKillSwitch = useMutation(api.orgs.setKillSwitch);
 
   // No public query exposes orgs.killSwitch yet, so read the latest kill_switch_changed action.
@@ -27,12 +27,16 @@ export default function OpsBoard() {
 
   const startOfToday = new Date().setHours(0, 0, 0, 0);
   const today = (cases ?? []).filter((c) => c._creationTime >= startOfToday);
-  const paid = today.filter((c) => c.status === "paid");
+  // Count by when the money moved, not when the case was created (seeded history is created today too).
+  const paidTodayIds = new Set(
+    (recent ?? []).filter((a) => a.kind === "payment_succeeded" && a._creationTime >= startOfToday).map((a) => a.caseId),
+  );
+  const paid = (cases ?? []).filter((c) => c.status === "paid" && paidTodayIds.has(c._id));
   const totals = [
     { label: "Paid today", value: formatCents(paid.reduce((sum, c) => sum + (c.amountCents ?? 0), 0)), sub: `${paid.length} cases` },
     { label: "Needs approval", value: today.filter((c) => c.status === "awaiting_approval").length },
     { label: "Blocked", value: today.filter((c) => c.status === "blocked" || c.status === "rejected").length },
-    { label: "In progress", value: today.filter((c) => !["paid", "blocked", "rejected", "failed", "awaiting_approval"].includes(c.status)).length },
+    { label: "In progress", value: today.filter((c) => ["received", "extracting", "checking", "awaiting_call", "paying"].includes(c.status)).length },
   ];
 
   const toggleKillSwitch = () => {
@@ -71,7 +75,7 @@ export default function OpsBoard() {
         {totals.map((t) => (
           <div key={t.label} className="rounded-xl border p-4">
             <div className="text-base text-muted-foreground">{t.label}</div>
-            <div className="text-4xl font-bold tabular-nums">{t.value}</div>
+            <div className="text-4xl font-bold tabular-nums">{cases === undefined ? "—" : t.value}</div>
             {t.sub && <div className="text-base text-muted-foreground">{t.sub}</div>}
           </div>
         ))}
@@ -108,7 +112,7 @@ export default function OpsBoard() {
                       </div>
                     </div>
                     <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
-                      <PipelineSteps status={c.status} />
+                      <PipelineSteps c={c} />
                       <StatusChip status={c.status} />
                     </div>
                     {c.reasons.length > 0 && (

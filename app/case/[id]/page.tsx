@@ -5,12 +5,13 @@
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useMutation, useQuery } from "convex/react";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, OctagonX } from "lucide-react";
 import { api } from "@/convex/_generated/api";
 import { Doc, Id } from "@/convex/_generated/dataModel";
 import {
   checkLabel,
   CheckResultBadge,
+  failLabel,
   formatCents,
   formatTime,
   PipelineSteps,
@@ -18,6 +19,7 @@ import {
   SyntheticBadge,
   VerdictBadge,
 } from "@/components/case-ui";
+import { ApprovalPanel } from "@/components/ApprovalPanel";
 
 // Failures first, so the checks that decided the verdict are the ones on screen.
 const RESULT_ORDER: Record<Doc<"checks">["result"], number> = { fail: 0, warn: 1, pass: 2, skipped: 3 };
@@ -36,6 +38,7 @@ export default function CasePage() {
   const { case: c, document: doc, party, checks, approvals, payments } = data;
   const ex = doc?.extracted ?? null;
   const sortedChecks = [...checks].sort((a, b) => RESULT_ORDER[a.result] - RESULT_ORDER[b.result]);
+  const redFlags = checks.filter((ch) => ch.result === "fail");
 
   return (
     <main className="mx-auto max-w-7xl space-y-6 p-6 text-lg">
@@ -56,12 +59,39 @@ export default function CasePage() {
           </div>
           <div className="text-5xl font-bold tabular-nums">{formatCents(c.amountCents, c.currency)}</div>
           <div className="flex flex-wrap items-center gap-3 pt-1">
-            <PipelineSteps status={c.status} />
+            <PipelineSteps c={c} />
             <StatusChip status={c.status} />
           </div>
         </div>
         <VerdictBadge verdict={c.verdict} size="xl" />
       </header>
+
+      {/* The demo moment: failed checks big enough to read from the back of the room. */}
+      {redFlags.length > 0 && (
+        <section aria-labelledby="flags-heading" className="rounded-xl border-4 border-red-700 p-6">
+          <h2 id="flags-heading" className="mb-4 text-2xl font-bold text-red-700 dark:text-red-400">
+            {redFlags.length} red flag{redFlags.length === 1 ? "" : "s"}
+          </h2>
+          <ul className="space-y-4">
+            {redFlags.map((ch) => (
+              <li key={ch._id} className="flex items-start gap-4">
+                <OctagonX className="mt-1 size-9 shrink-0 text-red-700 dark:text-red-400" aria-hidden />
+                <div>
+                  <div className="text-3xl font-bold">{failLabel(ch.kind)}</div>
+                  <div className="text-xl text-muted-foreground">{ch.detail}</div>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
+      {approvals.length > 0 && (
+        <section aria-labelledby="approvals-heading" className="space-y-3">
+          <h2 id="approvals-heading" className="text-2xl font-semibold">Approvals</h2>
+          <ApprovalPanel c={c} approvals={approvals} />
+        </section>
+      )}
 
       {c.reasons.length > 0 && (
         <section aria-labelledby="why-heading" className="rounded-xl border p-6">
@@ -169,9 +199,7 @@ export default function CasePage() {
                   </summary>
                   <div className="mt-3 pl-32 text-base">
                     <div className="text-muted-foreground">Seat: {ch.seat}</div>
-                    {ch.evidence !== null && (
-                      <pre className="mt-2 overflow-x-auto rounded bg-muted p-3 font-mono text-sm">{JSON.stringify(ch.evidence, null, 2)}</pre>
-                    )}
+                    {ch.evidence !== null && <Evidence value={ch.evidence} />}
                   </div>
                 </details>
               </li>
@@ -181,26 +209,8 @@ export default function CasePage() {
       </section>
 
       <div className="grid gap-6 lg:grid-cols-2">
-        <section aria-labelledby="approvals-heading" className="space-y-3">
-          <h2 id="approvals-heading" className="text-2xl font-semibold">Approvals</h2>
-          {/* Read-only for Checkpoint A. The typed-amount signing UI lands in the 10 PM–2 AM block. */}
-          {approvals.length === 0 ? (
-            <p className="text-muted-foreground">None required.</p>
-          ) : (
-            <ul className="space-y-2">
-              {approvals.map((a) => (
-                <li key={a._id} className="flex items-center justify-between rounded-xl border p-4">
-                  <span className="font-semibold capitalize">{a.role}</span>
-                  <span>
-                    {a.status === "pending" ? "Waiting for signature" : `${a.status} by ${a.decidedBy}`}
-                    {a.decidedAt && <span className="text-muted-foreground"> · {formatTime(a.decidedAt)}</span>}
-                  </span>
-                </li>
-              ))}
-            </ul>
-          )}
-
-          <h2 className="pt-3 text-2xl font-semibold">Payment</h2>
+        <section aria-labelledby="payment-heading" className="space-y-3">
+          <h2 id="payment-heading" className="text-2xl font-semibold">Payment</h2>
           {payments.length === 0 ? (
             <p className="text-muted-foreground">Not paid.</p>
           ) : (
@@ -270,6 +280,23 @@ export default function CasePage() {
         </ol>
       </section>
     </main>
+  );
+}
+
+// Evidence is whatever the seat recorded. Show objects as labeled rows; nested values as JSON.
+function Evidence({ value }: { value: unknown }) {
+  if (typeof value !== "object" || value === null || Array.isArray(value)) {
+    return <pre className="mt-2 overflow-x-auto rounded bg-muted p-3 font-mono text-sm">{JSON.stringify(value, null, 2)}</pre>;
+  }
+  return (
+    <dl className="mt-2 grid grid-cols-[max-content_1fr] gap-x-6 gap-y-1 rounded bg-muted p-3">
+      {Object.entries(value).map(([k, v]) => (
+        <div key={k} className="contents">
+          <dt className="text-muted-foreground">{k.replace(/([a-z])([A-Z])/g, "$1 $2").toLowerCase()}</dt>
+          <dd className="break-words font-mono text-sm leading-6">{typeof v === "object" && v !== null ? JSON.stringify(v) : String(v)}</dd>
+        </div>
+      ))}
+    </dl>
   );
 }
 
