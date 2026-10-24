@@ -1,5 +1,8 @@
 // Capital One Nessie sandbox client. Only payments.execute may call createTransfer.
-// Nessie data is public: send synthetic names only. Amounts on the wire are dollars.
+// Nessie data is public: send synthetic names only.
+// Units: account balances are dollars, but transfer amounts are integer CENTS. The sandbox's TransferCreate
+// types amount as an integer and truncates floats (1.23 -> 1, 0.5 -> 0; a string is a 400; checked live
+// 2026-10-24). Transfers don't move balances in the sandbox, so the field is only a record, and cents keep it exact.
 const BASE = "https://api.nessieisreal.com";
 
 function key(): string {
@@ -78,11 +81,21 @@ async function listOutgoingTransfers(fromAccountId: string): Promise<NessieTrans
   }
 }
 
+// A tagged transfer whose stored amount isn't ours is never "already paid": throw, so the payment fails visibly
+// instead of being marked paid (or sent a second time).
+function checkAmount(t: NessieTransfer, tag: string, amountCents: number): void {
+  if (t.amount !== amountCents) {
+    throw new Error(`Nessie transfer ${tag} stored amount ${t.amount}, expected ${amountCents} cents`);
+  }
+}
+
 // Idempotency: Nessie has none, so every transfer carries our tag and we look for it before sending.
-export async function findTransferByTag(fromAccountId: string, tag: string): Promise<string | null> {
+export async function findTransferByTag(fromAccountId: string, tag: string, amountCents: number): Promise<string | null> {
   const transfers = await listOutgoingTransfers(fromAccountId);
   const t = transfers.find((t) => t.description?.includes(tag));
-  return t ? (t._id ?? t.id ?? null) : null;
+  if (!t) return null;
+  checkAmount(t, tag, amountCents);
+  return t._id ?? t.id ?? null;
 }
 
 export async function createTransfer(args: {
@@ -92,15 +105,24 @@ export async function createTransfer(args: {
   tag: string;
   memo: string;
 }): Promise<string> {
+  if (!Number.isInteger(args.amountCents) || args.amountCents <= 0) {
+    throw new Error(`Nessie transfer ${args.tag}: amount must be positive integer cents, got ${args.amountCents}`);
+  }
   const res = await call("POST", `/accounts/${args.fromAccountId}/transfers`, {
     // The sandbox's TransferCreate takes only status, amount, date and description (medium and payee_id are rejected),
-    // so the payee travels in the description, like the other teams' records.
+    // so the payee travels in the description, like the other teams' records. The dollar figure is for people
+    // reading Nessie; `amount` is cents (see the top of this file).
     status: "completed",
-    amount: args.amountCents / 100,
+    amount: args.amountCents,
     transaction_date: new Date().toISOString().slice(0, 10),
-    description: `${args.tag} ${args.memo} -> ${args.toAccountId}`.slice(0, 140),
+    description: `${args.tag} $${(args.amountCents / 100).toFixed(2)} ${args.memo} -> ${args.toAccountId}`.slice(0, 140),
   });
-  const id = createdId(res) ?? (await findTransferByTag(args.fromAccountId, args.tag));
+  const created = (res as { objectCreated?: NessieTransfer } | null)?.objectCreated;
+  if (created?._id) {
+    checkAmount(created, args.tag, args.amountCents);
+    return created._id;
+  }
+  const id = await findTransferByTag(args.fromAccountId, args.tag, args.amountCents);
   if (!id) throw new Error(`Nessie transfer ${args.tag} not found after create`);
   return id;
 }
