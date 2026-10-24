@@ -5,7 +5,6 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useAction, useQuery } from "convex/react";
-import { makeFunctionReference } from "convex/server";
 import { ArrowLeft, CircleCheck, CircleX, LoaderCircle, Play } from "lucide-react";
 import { api } from "@/convex/_generated/api";
 import { Doc } from "@/convex/_generated/dataModel";
@@ -14,10 +13,6 @@ import { AgentAvatar } from "@/components/agents";
 import { SyntheticBadge, VerdictBadge } from "@/components/case-ui";
 import { EVAL_CASES } from "@/evals/fixtures/cases";
 import { cn } from "@/lib/utils";
-
-// evals.run is Josiah's (contracts §7) and lands with the eval runner. Referenced by name so this page
-// builds before it exists; calling it early shows a friendly message instead of crashing.
-const runEval = makeFunctionReference<"action", Record<string, never>, unknown>("evals:run");
 
 const CASE_INFO = new Map(EVAL_CASES.map((c) => [c.id, c]));
 const GROUP_LABELS: Record<string, string> = {
@@ -32,7 +27,7 @@ type Run = Doc<"evalRuns">;
 
 export default function ScorecardPage() {
   const run = useQuery(api.evals.latest, {});
-  const start = useAction(runEval);
+  const start = useAction(api.evals.runFromUi);
   const [starting, setStarting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 

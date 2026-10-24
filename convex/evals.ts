@@ -4,7 +4,7 @@
 import { v } from "convex/values";
 import { api, internal } from "./_generated/api";
 import { Id } from "./_generated/dataModel";
-import { internalAction, internalMutation, internalQuery, query } from "./_generated/server";
+import { action, internalAction, internalMutation, internalQuery, query } from "./_generated/server";
 import { EVAL_CASES, EvalCase } from "../evals/fixtures/cases";
 import { CaseResult, scoreCase, summarize } from "../evals/fixtures/score";
 
@@ -136,5 +136,13 @@ export const run = internalAction({
     const failed = results.filter((r) => !r.pass);
     console.log(`Eval run ${runId}: ${results.length - failed.length}/${results.length} pass`, failed.map((r) => `${r.evalCaseId}: ${r.note}`));
     return { runId, pass: results.length - failed.length, total: results.length, failed: failed.map((r) => `${r.evalCaseId}: ${r.note}`), summary };
+  },
+});
+
+// The scorecard's Run eval button: schedules run and returns at once. Progress shows live through latest.
+export const runFromUi = action({
+  args: {},
+  handler: async (ctx) => {
+    await ctx.scheduler.runAfter(0, internal.evals.run, {});
   },
 });
