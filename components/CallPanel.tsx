@@ -2,10 +2,9 @@
 
 // Cal's verification call, live: transcript lines stream in from calls.forCase (a reactive query) as a
 // chat between Cal and the vendor, with the outcome once the call ends.
-import { useEffect, useRef, useState } from "react";
-import { useMutation } from "convex/react";
+import { useEffect, useRef } from "react";
 import { FunctionReturnType } from "convex/server";
-import { LoaderCircle, PhoneCall, PlayCircle } from "lucide-react";
+import { PhoneCall } from "lucide-react";
 import { api } from "@/convex/_generated/api";
 import { Doc } from "@/convex/_generated/dataModel";
 import { AgentAvatar } from "@/components/agents";
@@ -52,15 +51,13 @@ function CallCard({ call }: { call: Call }) {
   }, [lines, live]);
 
   const seconds = call.startedAt && call.endedAt ? Math.round((call.endedAt - call.startedAt) / 1000) : null;
-  const evalSim = call.toNumber === "simulated" || call.toNumber === "simulated call";
-  const demoSim = call.cartesiaCallId?.startsWith(SIMULATED_PREFIX) ?? false;
-  const title = evalSim
-    ? "Simulated call (eval)"
-    : demoSim
-      ? "Simulated call (demo fallback)"
-      : call.toNumber === "web call"
-        ? "Web call to the vendor (demo: answer in this browser)"
-        : `Calling ${call.toNumber}, the number on file`;
+  const simulated = call.toNumber === "simulated" || call.toNumber === "simulated call";
+  const web = call.toNumber === "web call";
+  const title = simulated
+    ? "Simulated call"
+    : web
+      ? "Web call to the vendor (demo: answer in this browser)"
+      : `Calling ${call.toNumber}, the number on file`;
 
   return (
     <div className="soft-card overflow-hidden">
@@ -83,8 +80,6 @@ function CallCard({ call }: { call: Call }) {
           <span className="text-sm text-muted-foreground">Ended{seconds !== null && seconds > 0 && ` · ${seconds}s`}</span>
         )}
       </div>
-
-      {call.status === "queued" && <SimulateCall callId={call._id} />}
 
       {lines > 0 ? (
         <ol className="max-h-96 space-y-3 overflow-y-auto p-4" aria-live="polite">
@@ -126,54 +121,3 @@ function CallCard({ call }: { call: Call }) {
   );
 }
 
-// Demo fallback (docs/demo-script.md "If something breaks"): if the web call doesn't connect in front of a
-// judge, play the vendor's line and record the denial. Uses Josiah's public web-call mutations with a call
-// id marked "simulated-", so the panel labels it as simulated.
-const SIMULATED_PREFIX = "simulated-";
-const VENDOR_LINE = "No, we didn't change anything.";
-const SIMULATED_TRANSCRIPT = [
-  { speaker: "Cal", text: "Hi, this is Cal, an automated assistant calling about a recent invoice. Did you recently change your bank account details?" },
-  { speaker: "Vendor", text: VENDOR_LINE },
-];
-
-function SimulateCall({ callId }: { callId: Call["_id"] }) {
-  const answer = useMutation(api.calls.answerWebCall);
-  const report = useMutation(api.calls.reportWebOutcome);
-  const [busy, setBusy] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  const simulate = async () => {
-    setBusy(true);
-    setError(null);
-    // Speak the vendor's line on the click itself (browsers allow speech from a gesture). Works offline.
-    if ("speechSynthesis" in window) {
-      window.speechSynthesis.cancel();
-      window.speechSynthesis.speak(new SpeechSynthesisUtterance(VENDOR_LINE));
-    }
-    try {
-      const cartesiaCallId = `${SIMULATED_PREFIX}${Date.now()}`;
-      await answer({ callId, cartesiaCallId });
-      await report({ callId, cartesiaCallId, outcome: "denied_change", transcript: SIMULATED_TRANSCRIPT });
-    } catch (e) {
-      const message = e instanceof Error ? e.message : String(e);
-      setError(message.match(/Uncaught Error: (.*?)(\n|$)/)?.[1] ?? message);
-      setBusy(false);
-    }
-  };
-
-  return (
-    <div className="flex flex-wrap items-center gap-3 border-b border-border/70 bg-muted/40 px-4 py-3">
-      <button
-        type="button"
-        onClick={() => void simulate()}
-        disabled={busy}
-        className="inline-flex items-center gap-1.5 rounded-full border bg-card px-3 py-1.5 text-sm font-medium transition-colors hover:bg-accent disabled:opacity-60"
-      >
-        {busy ? <LoaderCircle className="size-4 animate-spin" aria-hidden /> : <PlayCircle className="size-4" aria-hidden />}
-        Simulate the call
-      </button>
-      <span className="text-sm text-muted-foreground">Fallback: the vendor says &ldquo;{VENDOR_LINE}&rdquo;</span>
-      {error && <span className="w-full text-sm text-[#A3182B]">{error}</span>}
-    </div>
-  );
-}
