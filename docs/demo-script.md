@@ -34,7 +34,7 @@
 
 | Time | Who | What |
 |---|---|---|
-| 0:00–0:15 | Diego | "Small businesses move real money (supplier invoices, employee reimbursements) through one person, with nobody checking their work, and fake 'we changed banks' invoices target exactly that gap." "Quintet is the second signature." |
+| 0:00–0:15 | Diego | "Small businesses move real money (supplier invoices, employee reimbursements) through one person, with nobody checking their work, and fake 'we changed banks' invoices target exactly that gap." "Quintet is the second signature." Then one line, before any demo: "Every document takes the same five steps: **read, verify, call, decide, pay.** Watch where this one stops." Name each step as it lights up on the board. |
 | 0:15–1:00 | Kai drives, Diego narrates | Kai runs DEMO-1 from the console. Diego names the three red checks. Josiah's phone rings; Josiah answers as the vendor and says "no". The case goes to BLOCKED. |
 | 1:00–1:20 | Diego | Push-to-talk: "Why did you hold it?" The spoken answer cites the audit log. |
 | 1:20–1:45 | Kai | The genuine invoice → ALLOW → paid. Fault injection on → paid exactly once. Diego: "The model can't move money. A tested rules engine decides, and the model can only make it stricter." |

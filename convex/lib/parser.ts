@@ -46,6 +46,12 @@ const INJECTION_PATTERNS = [
 // Returns each sentence of the text layer that looks addressed to an AI.
 export function scanForInjection(text: string): { text: string; where: string }[] {
   const sentences = text.split(/(?<=[.!?\n])\s+/);
-  const hits = sentences.filter((s) => INJECTION_PATTERNS.some((p) => p.test(s)));
-  return [...new Set(hits.map((s) => s.trim().slice(0, 300)))].map((t) => ({ text: t, where: "pdf_text_layer" }));
+  const hits = sentences.flatMap((s) => {
+    const m = INJECTION_PATTERNS.map((p) => p.exec(s)).find(Boolean);
+    if (!m) return [];
+    // A long block (no punctuation) is cut to a window around the match, not its first 300 chars.
+    const from = Math.max(0, m.index - 120);
+    return [s.slice(from, from + 300).trim()];
+  });
+  return [...new Set(hits)].map((t) => ({ text: t, where: "pdf_text_layer" }));
 }
