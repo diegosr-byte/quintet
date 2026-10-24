@@ -9,6 +9,43 @@ You own the rules, the prompts, the fake documents, the 25 test cases and the pi
 
 **Load:** about 21 h of core work. Stretch: the Droid policy compiler (4 h), only if checkpoint C passes.
 
+## Handoff from Josiah (Fri night, read first)
+Josiah's pipeline is on `main` (commits `b03726d`, `1385b77`). It runs end to end against **stubs in your files**, each headed "STUB by Josiah". Overwrite them wholesale; the pipeline only depends on the names below.
+
+**1. Keep these exports (the pipeline imports them):**
+
+| File | Exports used |
+|---|---|
+| `convex/lib/policy.ts` | `PolicyRules`, `defaultRules`, `Verdict`, `DocKind` |
+| `convex/lib/gate.ts` | `evaluate`, `GateInput`, `Decision`, `CallOutcome`, `ApprovalRole` (the shapes in contracts §4) |
+| `convex/lib/schemas.ts` | `Extraction` (type), `extractionJsonSchema` (JSON Schema for `output_config.format`) |
+| `prompts/intake.ts` | `INTAKE_SYSTEM_PROMPT` |
+| `prompts/verify.ts` | `VERIFY_SYSTEM_PROMPT`, `verifyJsonSchema` |
+| `prompts/explain.ts` | `EXPLAIN_SYSTEM_PROMPT`, `explainJsonSchema` |
+
+**2. Prompts are `.ts` files, not `.md`.** Convex bundles code and can't read `.md` files at runtime, so each prompt is an exported string. Ignore the `.md` names in the blocks below; write into `prompts/intake.ts`, `prompts/verify.ts` and `prompts/explain.ts`.
+
+**3. Structured-output schemas:** every object needs `additionalProperties: false` and every property listed in `required`; use `anyOf: [X, {type: "null"}]` for nullable fields (see the stub `extractionJsonSchema`).
+
+**4. Output fields the pipeline reads today:**
+- **Verification:** `recommendation` (`NONE|ASK|BLOCK`) and `reason` (one sentence, shown in the UI). Your plan's `{ matchedPartyKey, lookalikeOf, confidence, recommendation, evidenceSummary }` is fine: keep `recommendation`, and either keep `reason` or tell Josiah to read `evidenceSummary` instead. Its input is `{ payeeFromDocument: { name, email, phone }, vendorsOnFile: [{ name, emailDomain }] }` as JSON.
+- **Explanation:** `{ explanation }`. Its input is JSON: `verdict`, `status`, `amountCents`, `currency`, `payee`, `reasons`, `ruleIds`, `requiredApprovals`, `checks: [{ kind, result, detail }]`.
+
+**5. How `GateInput` gets built (`convex/gateRun.ts`), so your tests match reality:**
+- **`crs.identity`:** `not_needed` for an on-file payee whose contact details match no persona; `skipped` when CRS didn't run (not allowlisted, or no credentials); otherwise `pass`/`fail`.
+- **`crs.fraudAlert`:** comes from TU code 2401 (a fraud alert is a step-up, not an identity fail).
+- **`outflow.paidTodayCents`:** counts from midnight Pacific (PDT).
+- **Approvals:** for ASK, `gateRun` always adds the owner, plus the accountant over `caps.accountantAboveCents`, on top of your `requiredApprovals`. It only adds signers.
+- **Model recommendation:** if the lookalike call fails, `modelRecommendation` is `NONE` and the failure is logged as a check.
+
+**6. Factory and fixtures: CRS only runs on exact persona contact details.** The CRS client (`convex/lib/crs.ts`, `PERSONAS`) calls CRS only when the document's phone or email **exactly** equals an allowlisted persona's. Formatting of the phone doesn't matter, but the field must be just the number.
+- Copy phones and emails from `PERSONAS` in `convex/lib/crs.ts` (taken verbatim from `get_test_data`). Allowlisted: P01, P12, P13, P14, P16, P19.
+- **E12's second clean persona is P01** (Margaret Okafor).
+- **E13 (DEMO-1):** the invoice's callback phone must be **P12's phone, 555-010-1012**. That's what makes CRS return identity FAIL, fraud score 85 and a reverse-phone mismatch.
+- **E14 (lookalike):** its contact details must match **no** persona, so CRS is skipped.
+- **`bank: on_file`:** take the full routing and account numbers from `SEED_PARTIES` in `convex/seed.ts`. Party keys: `lanternfish`, `paperkite`, `saltmarsh`, `kestrel`, `employeeA`–`employeeD`.
+- **Prior Kestrel payment:** seed already has a paid $450 invoice `KS-1041` from 3 days ago, for E23.
+
 ## You own
 - **Code:** `convex/lib/gate.ts`, `convex/lib/gate.test.ts`, `convex/lib/policy.ts`, `convex/lib/schemas.ts`, `prompts/**`, `convex/factory.ts`, `evals/fixtures/**`.
 - **Docs:** `docs/policy-rules.md`, `docs/eval-cases.md`, `docs/demo-script.md`, `docs/judge-qa.md`, and the core sections of `README.md`.
