@@ -7,7 +7,7 @@ To change one: get all three to agree, then update this file in the same commit.
 ## 1. Pipeline at a glance
 ```
 documents.ingest (mutation, creates the case)
-  → intake.extract   (action: Claude, no tools, structured output + parser re-read)
+  → intakeNode.extract (action: Claude, no tools, structured output + parser re-read)
   → verify.run       (action: on-file diff, duplicates, CRS, injection scan, Claude fuzzy match)
   → gateRun.decide   (mutation: builds GateInput, calls evaluate(), writes the decision)
        ALLOW                      → payments.execute (action, Nessie) → paid
@@ -43,7 +43,7 @@ Convex adds `_id` and `_creationTime` itself.
 |---|---|---|
 | name | string | e.g. "Bluefin Print & Design (SYNTHETIC)" |
 | killSwitch | boolean | |
-| activePolicyVersionId | Id<"policyVersions"> | |
+| activePolicyVersionId | Id<"policyVersions"> or null | null only between inserting the org and its first policy version |
 | isEval | boolean | each eval run gets a fresh org, so caps and duplicates don't leak between runs |
 | nessieAccountId | string | the business's checking account |
 
@@ -127,6 +127,7 @@ Convex adds `_id` and `_creationTime` itself.
 | status | `pending` `succeeded` `failed` | |
 | attempts | number | |
 | lastError | string or null | |
+| succeededAt | number or null | when Nessie confirmed; feeds the daily cap (R5) and split-purchase window (R9) |
 
 **calls**: `caseId`, `partyId`, `toNumber` (copied from callTargetPhone), `cartesiaCallId`, `status` (`queued` `in_progress` `completed` `failed`), `outcome` (CallOutcome or null), `transcript` (`{ speaker, text }[]`), `startedAt`, `endedAt`.
 
@@ -139,6 +140,7 @@ Convex adds `_id` and `_creationTime` itself.
 - `checks`, `actions`, `approvals`, `payments`, `calls`: by_case.
 - `actions`: by_org.
 - `payments`: by_idempotencyKey.
+- `policyVersions`: by_org.
 - `parties`: by_org_kind, by_org_key.
 - `documents`: by_sha256.
 
@@ -230,7 +232,8 @@ An action that needs a Node-only package moves to an actions-only `<module>Node.
 |---|---|---|---|
 | `documents.generateUploadUrl` | mutation | Josiah | Kai (uploads, receipt photos) |
 | `documents.ingest({ storageId, source, fileName, mimeType, kind?, evalCaseId?, submittedByPartyKey? }) → caseId` (`submittedByPartyKey` is required for reimbursements: the employee being reimbursed) | mutation | Josiah | Kai, evals |
-| `intake.extract`, `verify.run`, `gateRun.decide`, `explain.write`, `payments.execute`, `calls.place` | internal | Josiah | the pipeline |
+| `intakeNode.extract` (Node: unpdf needs it), `verify.run`, `gateRun.decide`, `explain.write`, `payments.execute`, `calls.place` | internal | Josiah | the pipeline |
+| `documents.ingestForOrg({ orgId, simulatedCallOutcome, ...ingest args })` | internal mutation | Josiah | evals |
 | `calls.recordOutcome` | internal mutation | Josiah | `http.ts` |
 | `POST /cartesia/outcome` | HTTP action (shared-secret check) | Josiah | Cartesia agent webhook tool |
 | `approvals.decide({ approvalId, decision, typedAmountCents, decidedBy })` | mutation | Josiah | Kai |

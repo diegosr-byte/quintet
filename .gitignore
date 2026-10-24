@@ -15,3 +15,6 @@ next-env.d.ts
 *.mov
 *.m4a
 *.wav
+/out/
+*.pem
+npm-debug.log*
