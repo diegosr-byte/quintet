@@ -32,22 +32,34 @@
 
 ## Table pitch: 3:00, then 2:00 of questions
 
+**Positions:** Kai in the middle with the laptop. Diego on the left, facing the judge. Josiah on the right with the phone on speaker, laptop screen visible. Speak to the judge, not the screen.
+
+**Before each judge arrives (Kai):** reset the demo, run one routine invoice to warm it up, and have the console open on the scenario buttons.
+
 | Time | Who | What |
 |---|---|---|
-| 0:00–0:20 | Diego | "Small businesses move real money (supplier invoices, employee reimbursements) through one person, with nobody checking their work, and fake 'we changed banks' invoices target exactly that gap." "Quintet is the second signature. Every document takes the same five steps: **read, verify, call, decide, pay.** Watch where this one stops." |
-| 0:20–0:50 | Kai | Runs DEMO-1 from the console and narrates the board as each step lights up. **Read:** the invoice arrives and Quintet finds the bank changed and hidden text aimed at the AI. **Verify:** three red checks: the bank changed, CRS says the number belongs to someone else with a fraud score of 85, and the hidden instructions. |
-| 0:50–1:15 | Josiah | **Call.** "Quintet calls the number we have on file, not the one on the invoice." The phone rings and Josiah answers as the vendor: "No, we didn't change anything." The case goes to BLOCKED. |
-| 1:15–1:35 | Diego | Push-to-talk: "Why did you hold it?" The spoken answer cites the audit log. "Every action is in an append-only log." |
-| 1:35–2:05 | Josiah (Kai drives) | **Decide, pay.** The genuine invoice → ALLOW → paid. Fault injection on: "I'm breaking the payment. It retries, and it still pays exactly once, because every payment carries a unique key." Diego adds one line: "The model can't move money. A tested rules engine decides, and the model can only make it stricter." |
-| 2:05–2:30 | Judge (Kai runs it) | "Your turn: you pick. Change the amount, the bank details, the vendor, or the kind of document, and Kai runs it live." Kai uses the console knobs. If the judge has no preference, Diego picks a scenario that shows a different verdict (an invoice over $1,000, or a duplicate). **Don't count on the judge having a receipt.** If they do have one, `/upload` takes a photo. Keep the real receipt photo (E07) on Kai's phone, or printed on the table, to offer instead. |
-| 2:30–3:00 | Diego | Scorecard → "what's real, what's simulated" → "Quintet fills five seats a small business can't staff: intake clerk, verification analyst, caller, payments clerk, controller. The owner only signs what policy says needs a human." |
+| 0:00–0:20 | Diego | "Small businesses move real money through one person, with nobody checking their work, and fake 'we changed banks' invoices target exactly that gap. Quintet is the second signature. Every document takes the same five steps: **read, verify, call, decide, pay.** Watch where this one stops." Kai clicks "We switched banks" on the last words. |
+| 0:20–0:45 | Kai | Narrates the board as the steps light up. **Read:** "the bank details changed, and there's hidden text aimed at the AI." **Verify:** "three red checks: the bank, a CRS fraud score of 85 on the callback number, and the hidden instructions." Keep it short: the call starts on its own. |
+| 0:45–1:15 | Josiah | **Call.** "Step three: it calls the number we have on file, not the one on the invoice." The phone rings, Josiah answers as the vendor: "No, we didn't change anything." The live transcript is on screen. BLOCKED. |
+| 1:15–1:35 | Diego | **Decide.** "Why did you hold it?" (spoken, or typed if it's loud). The answer cites the audit log. "Every action is in an append-only log." |
+| 1:35–2:05 | Josiah (Kai drives) | **Pay.** Kai clicks "Routine invoice", with "break the payment" on. "It's allowed, and I'm breaking the payment on purpose. It retries, and pays exactly once, because every payment carries a unique key." Diego adds: "The model can't move money. A tested rules engine decides, and the model can only make it stricter." |
+| 2:05–2:30 | Judge, Kai runs it | "Your turn. Pick any of these (Kai shows the scenario buttons), or change the amount, the bank details or the vendor." If the judge hesitates, Diego picks "Over $1,000": it needs two signatures, a different verdict. |
+| 2:30–3:00 | Diego | Kai switches to the scorecard. "25 cases: every attack stopped, every legitimate invoice paid, no wrongful holds. What's real, what's simulated." Close: "Read, verify, call, decide, pay: five seats a small business can't staff, and the owner only signs what the policy says needs a human." |
 
-**Speaking time:** Diego about 1:15, Josiah about 55 s, Kai about 30 s plus the judge round.
+**Speaking time:** Diego about 1:25, Josiah about 1:00, Kai about 25 s plus the judge round.
 
-**Who answers in the 2 minutes of questions:**
-- **Diego:** the policy and its source, the eval, the failure modes, why these customers.
-- **Kai:** the UI, the console, Ask Quintet, the video.
-- **Josiah:** CRS and the allowlist, the call, Nessie and idempotency, Convex.
+## If something breaks (say it out loud, keep going)
+- **The call doesn't ring within 10 s.** Josiah: "The phone network is slow in here. Here's what it does." Kai switches to the call outcome already shown on the case page (or the recorded video of the moment). Don't wait in silence.
+- **The case is slow (over 15 s).** Diego fills with the policy line: "While it checks: the rules come from a published small-business expense policy, and the model can only make a verdict stricter."
+- **Voice is unusable in the hall.** Type the question and let the answer show on screen. Never ask a judge to repeat it.
+- **The judge asks for something the console can't do.** "Good question, that one we can't run live, but here's what the gate would do." Answer from `policy-rules.md`.
+- **Always have the video ready** on a second tab, at the moment (0:00–0:40).
+
+## Needed before the first judge (ask Kai and Josiah)
+1. **A "break the payment" switch on the console, set before the case is created.** Today, fault injection is a checkbox on the case page. The pipeline pays in about 10 seconds, so ticking it after clicking races the payment, and you may be too late. This is the largest risk to the 1:35 beat.
+2. **A reset between judges.** Repeated demos hit the $3,000 daily cap (R5) and duplicate/same-vendor limits (R6, R9). I saw those rules fire in my own repeated E13 runs. The routine invoice must still pay on the tenth run, or "every legitimate invoice paid" is false at the table.
+3. **A "simulate the call" fallback**, so the BLOCK still happens if the real call fails.
+4. **Run it ten times in a row, back to back,** the way a day of judges will.
 
 ## 20-second sponsor add-ons (for judges who stop by)
 - **Hyphenate:** the seats line, plus "audit-ready by default: every action has an append-only log entry; try your own scenario."
