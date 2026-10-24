@@ -15,6 +15,7 @@ import type * as cases from "../cases.js";
 import type * as documents from "../documents.js";
 import type * as evals from "../evals.js";
 import type * as explain from "../explain.js";
+import type * as factory from "../factory.js";
 import type * as gateRun from "../gateRun.js";
 import type * as intakeNode from "../intakeNode.js";
 import type * as lib_claude from "../lib/claude.js";
@@ -45,6 +46,7 @@ declare const fullApi: ApiFromModules<{
   documents: typeof documents;
   evals: typeof evals;
   explain: typeof explain;
+  factory: typeof factory;
   gateRun: typeof gateRun;
   intakeNode: typeof intakeNode;
   "lib/claude": typeof lib_claude;
