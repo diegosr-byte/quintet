@@ -172,8 +172,11 @@ export default function ConsolePage() {
   const router = useRouter();
   const render = useAction(api.factory.render);
   const ingest = useMutation(api.documents.ingest);
+  const setFaultInjection = useMutation(api.cases.setFaultInjection);
   const [k, setK] = useState<Knobs>(ROUTINE);
   const [busy, setBusy] = useState(false);
+  // Kept apart from the knobs so it survives clicking a scenario.
+  const [breakPayment, setBreakPayment] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const set = (patch: Partial<Knobs>) =>
@@ -231,6 +234,9 @@ export default function ConsolePage() {
         mimeType: doc.mimeType,
         ...(isReceipt && { submittedByPartyKey: k.employee }),
       });
+      // TODO: pass faultInjection to ingest once Josiah's flag lands. Until then set it right away: this runs
+      // milliseconds after the case is created, long before the payment step (~10 s).
+      if (breakPayment) await setFaultInjection({ caseId, on: true });
       router.push(`/case/${caseId}`);
     } catch (e) {
       const message = e instanceof Error ? e.message : String(e);
@@ -284,6 +290,15 @@ export default function ConsolePage() {
                   <div className="text-sm text-muted-foreground">{s.hint}</div>
                 </button>
               ))}
+            </div>
+            {/* Set before the case exists: the payment lands ~10 s after Generate, too fast to tick afterwards. */}
+            <div className="mt-3 rounded-2xl border border-dashed px-2">
+              <Toggle
+                checked={breakPayment}
+                onChange={setBreakPayment}
+                label="Break the payment"
+                hint="The first transfer fails after the bank accepts it. Penny retries and pays exactly once."
+              />
             </div>
           </div>
 

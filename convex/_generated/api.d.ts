@@ -19,6 +19,7 @@ import type * as explain from "../explain.js";
 import type * as factory from "../factory.js";
 import type * as gateRun from "../gateRun.js";
 import type * as intakeNode from "../intakeNode.js";
+import type * as lib_cartesia from "../lib/cartesia.js";
 import type * as lib_claude from "../lib/claude.js";
 import type * as lib_crs from "../lib/crs.js";
 import type * as lib_gate from "../lib/gate.js";
@@ -51,6 +52,7 @@ declare const fullApi: ApiFromModules<{
   factory: typeof factory;
   gateRun: typeof gateRun;
   intakeNode: typeof intakeNode;
+  "lib/cartesia": typeof lib_cartesia;
   "lib/claude": typeof lib_claude;
   "lib/crs": typeof lib_crs;
   "lib/gate": typeof lib_gate;
