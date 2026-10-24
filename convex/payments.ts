@@ -154,7 +154,7 @@ export const execute = internalAction({
 
     try {
       // Our own record first, then Nessie by tag; send only if neither has it.
-      let transferId = p.sentTransferId ?? (await findTransferByTag(p.fromAccountId, p.tag));
+      let transferId = p.sentTransferId ?? (await findTransferByTag(p.fromAccountId, p.tag, p.amountCents));
       const foundByTag = transferId !== null;
       if (!transferId) {
         if (await ctx.runQuery(internal.orgs.killSwitchOn, { orgId: p.orgId })) {

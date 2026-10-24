@@ -133,6 +133,7 @@ Researched Oct 22 from the Hacker Guide, Devpost, hive.hackberkeley.org/prizes a
   - The SDKs are years old; use plain `fetch`.
   - **POST behavior is untested: test it first thing Friday.**
   - There's no idempotency support, so our `payments` table plus the tag lookup provides it.
+  - Transfer `amount` is an integer: floats are truncated ($1.23 stored as 1, $0.50 as 0) and strings are a 400. We send integer **cents** and check the stored amount; the description carries the dollar figure. Transfers don't move account balances in the sandbox. Bills take a float `payment_amount`, but listing them 400s unless every bill has `recurring_date` and `upcoming_payment_date` (checked live 2026-10-24).
 - **Our use:** the business's checking account; payees as accounts; payments as transfers (or bills) tagged `QT-…`.
 - **Owner:** Josiah.
 
