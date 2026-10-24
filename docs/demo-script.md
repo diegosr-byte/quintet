@@ -39,7 +39,7 @@
 | 0:50–1:15 | Josiah | **Call.** "Quintet calls the number we have on file, not the one on the invoice." The phone rings and Josiah answers as the vendor: "No, we didn't change anything." The case goes to BLOCKED. |
 | 1:15–1:35 | Diego | Push-to-talk: "Why did you hold it?" The spoken answer cites the audit log. "Every action is in an append-only log." |
 | 1:35–2:05 | Josiah (Kai drives) | **Decide, pay.** The genuine invoice → ALLOW → paid. Fault injection on: "I'm breaking the payment. It retries, and it still pays exactly once, because every payment carries a unique key." Diego adds one line: "The model can't move money. A tested rules engine decides, and the model can only make it stricter." |
-| 2:05–2:30 | Judge (Kai runs it) | "Your turn: give us a receipt from your wallet, or change anything on this invoice." Diego prompts, Kai runs it live. |
+| 2:05–2:30 | Judge (Kai runs it) | "Your turn: you pick. Change the amount, the bank details, the vendor, or the kind of document, and Kai runs it live." Kai uses the console knobs. If the judge has no preference, Diego picks a scenario that shows a different verdict (an invoice over $1,000, or a duplicate). **Don't count on the judge having a receipt.** If they do have one, `/upload` takes a photo. Keep the real receipt photo (E07) on Kai's phone, or printed on the table, to offer instead. |
 | 2:30–3:00 | Diego | Scorecard → "what's real, what's simulated" → "Quintet fills five seats a small business can't staff: intake clerk, verification analyst, caller, payments clerk, controller. The owner only signs what policy says needs a human." |
 
 **Speaking time:** Diego about 1:15, Josiah about 55 s, Kai about 30 s plus the judge round.
