@@ -241,7 +241,7 @@ An action that needs a Node-only package moves to an actions-only `<module>Node.
 | Function | Kind | Owner | Used by |
 |---|---|---|---|
 | `documents.generateUploadUrl` | mutation | Josiah | Kai (uploads, receipt photos) |
-| `documents.ingest({ storageId, source, fileName, mimeType, kind?, evalCaseId?, submittedByPartyKey? }) → caseId` (`submittedByPartyKey` is required for reimbursements: the employee being reimbursed) | mutation | Josiah | Kai, evals |
+| `documents.ingest({ storageId, source, fileName, mimeType, kind?, evalCaseId?, submittedByPartyKey?, faultInjection? }) → caseId` (`submittedByPartyKey` is required for reimbursements: the employee being reimbursed; `faultInjection` sets the DEMO-2 toggle at creation, default false) | mutation | Josiah | Kai, evals |
 | `intakeNode.extract` (Node: unpdf needs it), `verify.run`, `gateRun.decide`, `explain.write`, `payments.execute`, `calls.place` | internal | Josiah | the pipeline |
 | `documents.ingestForOrg({ orgId, simulatedCallOutcome, ...ingest args })` | internal mutation | Josiah | evals |
 | `calls.recordOutcome` | internal mutation | Josiah | `http.ts` |

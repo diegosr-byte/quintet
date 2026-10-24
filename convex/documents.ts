@@ -20,6 +20,8 @@ const ingestArgs = {
   evalCaseId: v.optional(v.string()),
   // Required for reimbursements: the employee being reimbursed.
   submittedByPartyKey: v.optional(v.string()),
+  // Demo toggle (DEMO-2), set at creation so it can't lose the race with a fast ALLOW payment.
+  faultInjection: v.optional(v.boolean()),
 };
 
 async function createCase(
@@ -33,6 +35,7 @@ async function createCase(
     kind?: "invoice" | "receipt" | "email" | "credit_note" | "unknown";
     evalCaseId?: string;
     submittedByPartyKey?: string;
+    faultInjection?: boolean;
     simulatedCallOutcome?: "confirmed_change" | "denied_change" | "unclear" | "no_answer" | null;
   },
 ): Promise<Id<"cases">> {
@@ -73,7 +76,7 @@ async function createCase(
     requiredApprovals: [],
     explanation: null,
     evalCaseId: args.evalCaseId ?? null,
-    faultInjection: false,
+    faultInjection: args.faultInjection ?? false,
     simulatedCallOutcome: args.simulatedCallOutcome ?? null,
   });
   await appendAction(ctx, {
@@ -81,8 +84,8 @@ async function createCase(
     caseId,
     seat: "intake",
     kind: "case_created",
-    summary: `Received ${args.fileName} (${args.source}).`,
-    data: { documentId, mimeType: args.mimeType },
+    summary: `Received ${args.fileName} (${args.source}).${args.faultInjection ? " Fault injection is on." : ""}`,
+    data: { documentId, mimeType: args.mimeType, faultInjection: args.faultInjection ?? false },
   });
   await ctx.scheduler.runAfter(0, internal.intakeNode.extract, { caseId });
   return caseId;

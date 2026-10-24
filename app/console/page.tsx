@@ -173,7 +173,6 @@ export default function ConsolePage() {
   const router = useRouter();
   const render = useAction(api.factory.render);
   const ingest = useMutation(api.documents.ingest);
-  const setFaultInjection = useMutation(api.cases.setFaultInjection);
   const [k, setK] = useState<Knobs>(ROUTINE);
   const [busy, setBusy] = useState(false);
   // Kept apart from the knobs so it survives clicking a scenario.
@@ -234,10 +233,8 @@ export default function ConsolePage() {
         fileName: doc.fileName,
         mimeType: doc.mimeType,
         ...(isReceipt && { submittedByPartyKey: k.employee }),
+        ...(breakPayment && { faultInjection: true }),
       });
-      // TODO: pass faultInjection to ingest once Josiah's flag lands. Until then set it right away: this runs
-      // milliseconds after the case is created, long before the payment step (~10 s).
-      if (breakPayment) await setFaultInjection({ caseId, on: true });
       router.push(`/case/${caseId}`);
     } catch (e) {
       const message = e instanceof Error ? e.message : String(e);
