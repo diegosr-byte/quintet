@@ -223,6 +223,14 @@ Diego writes it in `convex/lib/schemas.ts`; Josiah's `intake.extract` uses it.
 
 Every page carries the footer: **SYNTHETIC TEST DOCUMENT · Quintet demo**.
 
+**Additions in the implementation (`convex/factory.ts`):**
+- `render` returns `{ storageId, fileName, mimeType }`, so the caller can pass all three straight to `documents.ingest`.
+- Two extra optional fields: `ageDays` (a receipt dated that many days ago; ignored if `issueDate` is set) and `merchant` (receipt merchant name, default "Corner Market").
+- `payee` is a seed key (vendors and employees) or `{ newPayee: {...} }`. If `personaId` is given, the document's phone and email are **exactly** that persona's (the `email` and `phone` you pass are ignored), which is what lets CRS run. Allowlisted: P01, P12, P13, P14, P16, P19.
+- A `lineItems` entry is `{ description, amountCents }`. With no `lineItems` and an `amountCents`, an invoice gets one line and a receipt is a card slip with only a total (not itemized).
+- Lanternfish invoices print **no phone**, so Josiah's demo number never appears on screen and a phone is never flagged as changed.
+- Call it from an action or the UI; it needs no auth (synthetic documents only).
+
 Kai's console calls `factory.render`, then `documents.ingest({ storageId, source: "console" })`.
 
 ## 7. Functions by owner
