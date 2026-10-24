@@ -9,9 +9,15 @@ import { api } from "@/convex/_generated/api";
 import { Doc } from "@/convex/_generated/dataModel";
 import type { PolicyRules, Verdict } from "@/convex/lib/policy";
 import { AgentAvatar } from "@/components/agents";
-import { formatCents, SyntheticBadge, VerdictBadge } from "@/components/case-ui";
+import { ThemeSwitch } from "@/components/ThemeSwitch";
+import {
+  formatCents,
+  SyntheticBadge,
+  VerdictBadge,
+} from "@/components/case-ui";
 
-const SOURCE_URL = "https://www.glitter.io/blog/process-documentation/expense-reimbursement-policy";
+const SOURCE_URL =
+  "https://www.glitter.io/blog/process-documentation/expense-reimbursement-policy";
 
 const FIELD_NAMES: Record<string, string> = {
   vendorOrMerchantName: "who it's from",
@@ -25,12 +31,25 @@ const FIELD_NAMES: Record<string, string> = {
   gift_card: "gift cards",
 };
 
-const list = (items: string[], joiner: "and" | "or" = "and", plural = false) => {
-  const named = items.map((i) => (FIELD_NAMES[i] ?? i.replace(/_/g, " ")) + (plural ? "s" : ""));
-  return named.length <= 1 ? named.join("") : `${named.slice(0, -1).join(", ")} ${joiner} ${named.at(-1)}`;
+const list = (
+  items: string[],
+  joiner: "and" | "or" = "and",
+  plural = false,
+) => {
+  const named = items.map(
+    (i) => (FIELD_NAMES[i] ?? i.replace(/_/g, " ")) + (plural ? "s" : ""),
+  );
+  return named.length <= 1
+    ? named.join("")
+    : `${named.slice(0, -1).join(", ")} ${joiner} ${named.at(-1)}`;
 };
 
-type Rule = { id: string; title: string; text: string; verdict: Verdict | "MIXED" };
+type Rule = {
+  id: string;
+  title: string;
+  text: string;
+  verdict: Verdict | "MIXED";
+};
 
 function describe(r: PolicyRules): Rule[] {
   const money = (c: number) => formatCents(c, r.currency).replace(/\.00$/, "");
@@ -110,19 +129,28 @@ export default function PolicyPage() {
 
   return (
     <main className="mx-auto max-w-5xl space-y-6 p-6 pb-28 text-lg">
-      <Link href="/" className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground">
-        <ArrowLeft className="size-5" aria-hidden /> Ops board
-      </Link>
+      <div className="flex items-center justify-between">
+        <Link
+          href="/"
+          className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground"
+        >
+          <ArrowLeft className="size-5" aria-hidden /> Ops board
+        </Link>
+        <ThemeSwitch />
+      </div>
 
       <header className="flex flex-wrap items-center gap-4">
         <AgentAvatar seat="controller" size={56} />
         <div>
           <div className="flex items-center gap-3">
-            <h1 className="text-3xl font-bold tracking-tight text-primary">Policy</h1>
+            <h1 className="text-3xl font-bold tracking-tight text-primary">
+              Policy
+            </h1>
             <SyntheticBadge />
           </div>
           <p className="text-muted-foreground">
-            The rules Cora applies. Code enforces them; the AI can&apos;t change them.
+            The rules Cora applies. Code enforces them; the AI can&apos;t change
+            them.
             {current && ` Version ${current.version}.`}
           </p>
         </div>
@@ -131,23 +159,43 @@ export default function PolicyPage() {
       {current === undefined ? (
         <p className="text-muted-foreground">Loading…</p>
       ) : current === null ? (
-        <p className="soft-card p-6 text-muted-foreground">No policy yet. Seed the deployment first.</p>
+        <p className="soft-card p-6 text-muted-foreground">
+          No policy yet. Seed the deployment first.
+        </p>
       ) : (
-        <section aria-label="Active rules" className="soft-card divide-y divide-border/70">
+        <section
+          aria-label="Active rules"
+          className="soft-card divide-y divide-border/70"
+        >
           {describe(current.rules as PolicyRules).map((rule) => (
-            <div key={rule.id} className="flex flex-col gap-2 p-5 sm:flex-row sm:items-start sm:gap-5">
-              <span className="w-12 shrink-0 rounded-full bg-[#F5F0FF] py-0.5 text-center font-mono text-base text-[#5B3EA8]">{rule.id}</span>
+            <div
+              key={rule.id}
+              className="flex flex-col gap-2 p-5 sm:flex-row sm:items-start sm:gap-5"
+            >
+              <span className="w-12 shrink-0 rounded-full bg-[#F5F0FF] py-0.5 text-center font-mono text-base text-[#5B3EA8]">
+                {rule.id}
+              </span>
               <div className="min-w-0 flex-1">
                 <div className="font-semibold">{rule.title}</div>
-                <p className="text-base leading-relaxed text-muted-foreground">{rule.text}</p>
+                <p className="text-base leading-relaxed text-muted-foreground">
+                  {rule.text}
+                </p>
               </div>
-              {rule.verdict !== "MIXED" && <VerdictBadge verdict={rule.verdict} />}
+              {rule.verdict !== "MIXED" && (
+                <VerdictBadge verdict={rule.verdict} />
+              )}
             </div>
           ))}
           <p className="flex items-center gap-1.5 p-5 text-base text-muted-foreground">
             Based on a published template:
-            <a href={SOURCE_URL} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 font-medium text-primary hover:underline">
-              Glitter, Expense Reimbursement Policy <ExternalLink className="size-4" aria-hidden />
+            <a
+              href={SOURCE_URL}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-1 font-medium text-primary hover:underline"
+            >
+              Glitter, Expense Reimbursement Policy{" "}
+              <ExternalLink className="size-4" aria-hidden />
             </a>
           </p>
         </section>
@@ -167,24 +215,40 @@ export default function PolicyPage() {
   );
 }
 
-function VersionRow({ v, active }: { v: Doc<"policyVersions">; active: boolean }) {
-  const source = v.source.startsWith("policy-doc:") ? "From the policy document" : v.source === "droid" ? "Proposed by Droid" : "Set by hand";
+function VersionRow({
+  v,
+  active,
+}: {
+  v: Doc<"policyVersions">;
+  active: boolean;
+}) {
+  const source = v.source.startsWith("policy-doc:")
+    ? "From the policy document"
+    : v.source === "droid"
+      ? "Proposed by Droid"
+      : "Set by hand";
   return (
     <li className="flex flex-wrap items-start justify-between gap-3 p-5">
       <div className="min-w-0">
         <div className="flex items-center gap-2 font-semibold">
           Version {v.version}
-          {active && <span className="rounded-full bg-[#DCF5E7] px-2.5 py-0.5 text-sm font-semibold text-[#0F6B3E]">Active</span>}
+          {active && (
+            <span className="rounded-full bg-[#DCF5E7] px-2.5 py-0.5 text-sm font-semibold text-[#0F6B3E]">
+              Active
+            </span>
+          )}
         </div>
         <div className="text-base text-muted-foreground">
-          {source} · by {v.createdBy} · {new Date(v._creationTime).toLocaleString()}
+          {source} · by {v.createdBy} ·{" "}
+          {new Date(v._creationTime).toLocaleString()}
         </div>
         {v.diffSummary && <p className="mt-1 text-base">{v.diffSummary}</p>}
       </div>
       <div className="flex flex-col items-end gap-1 text-base">
         {v.approvedBy ? (
           <span className="inline-flex items-center gap-1.5 text-[#0F6B3E]">
-            <CircleCheck className="size-5" aria-hidden /> Approved by {v.approvedBy}
+            <CircleCheck className="size-5" aria-hidden /> Approved by{" "}
+            {v.approvedBy}
           </span>
         ) : (
           <span className="text-muted-foreground">Not approved</span>

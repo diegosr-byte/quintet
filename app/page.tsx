@@ -11,7 +11,9 @@ import { VerdictButton, WhyPanel } from "@/components/CaseWhy";
 import { Button } from "@/components/ui/button";
 import { AgentAvatar, AGENTS, TEAM } from "@/components/agents";
 import { ActivityFeed } from "@/components/ActivityFeed";
+import { Collapsible } from "@/components/Collapsible";
 import { ResetDemo } from "@/components/ResetDemo";
+import { ThemeSwitch } from "@/components/ThemeSwitch";
 import { AgentTimeline } from "@/components/AgentTimeline";
 import { StatusDot, useTeamStatus } from "@/components/team-status";
 import {
@@ -92,13 +94,23 @@ export default function OpsBoard() {
             </h1>
             <SyntheticBadge />
           </div>
-          <nav aria-label="Pages" className="mt-1 flex gap-4 text-base font-medium">
-            <Link href="/scorecard" className="text-muted-foreground hover:text-foreground">
+          <nav
+            aria-label="Pages"
+            className="mt-1 flex items-center gap-4 text-base font-medium"
+          >
+            <Link
+              href="/scorecard"
+              className="text-muted-foreground hover:text-foreground"
+            >
               Scorecard
             </Link>
-            <Link href="/policy" className="text-muted-foreground hover:text-foreground">
+            <Link
+              href="/policy"
+              className="text-muted-foreground hover:text-foreground"
+            >
               Policy
             </Link>
+            <ThemeSwitch />
           </nav>
         </div>
         <div className="flex flex-wrap items-center gap-3">
@@ -201,10 +213,7 @@ export default function OpsBoard() {
       </section>
 
       <div className="grid gap-6 lg:grid-cols-[1fr_24rem]">
-        <section aria-labelledby="cases-heading">
-          <h2 id="cases-heading" className="mb-3 text-2xl font-semibold">
-            Cases
-          </h2>
+        <Collapsible title="Cases" count={cases?.length} className="min-w-0">
           {cases === undefined ? (
             <p className="text-muted-foreground">Loading…</p>
           ) : cases.length === 0 ? (
@@ -221,13 +230,13 @@ export default function OpsBoard() {
               ))}
             </ul>
           )}
-        </section>
+        </Collapsible>
 
-        <aside aria-labelledby="activity-heading">
-          <h2 id="activity-heading" className="mb-3 text-2xl font-semibold">
-            Activity
-          </h2>
-          <ActivityFeed actions={recent} />
+        {/* min-w-0: let one-line summaries truncate instead of widening the grid column */}
+        <aside className="min-w-0">
+          <Collapsible title="Activity" count={recent && (recent.length >= 200 ? "200+" : recent.length)}>
+            <ActivityFeed actions={recent} />
+          </Collapsible>
         </aside>
       </div>
     </main>

@@ -6,16 +6,17 @@ import { cn } from "@/lib/utils";
 
 export type Seat = Doc<"actions">["seat"];
 
+// ink and tint are CSS variables (globals.css) so they adapt to light and dark mode.
 type Agent = { name: string; role: string; job: string; color: string; ink: string; tint: string };
 
 export const AGENTS: Record<Seat, Agent> = {
-  intake: { name: "Ivy", role: "Intake clerk", job: "Reads every invoice and receipt", color: "#A8BEFF", ink: "#2D4BA6", tint: "#EEF2FF" },
-  verification: { name: "Vera", role: "Verification analyst", job: "Checks the payee, bank and contacts", color: "#FFD670", ink: "#7A5300", tint: "#FFF8E6" },
-  caller: { name: "Cal", role: "Caller", job: "Phones the vendor to confirm changes", color: "#FFB596", ink: "#9A3F1C", tint: "#FFF3EE" },
-  payments: { name: "Penny", role: "Payments clerk", job: "Pays only when the gate allows. Plain code, no AI", color: "#8FDDB7", ink: "#17694A", tint: "#ECFAF3" },
-  controller: { name: "Cora", role: "Controller", job: "Applies your policy and explains every decision", color: "#C6B0FF", ink: "#5B3EA8", tint: "#F5F0FF" },
-  human: { name: "You", role: "Approver", job: "Signs when a payment needs a person", color: "#DCE3EE", ink: "#20497A", tint: "#F1F4F9" },
-  system: { name: "Quintet", role: "System", job: "Setup and housekeeping", color: "#E3E7EE", ink: "#4A5568", tint: "#F4F6FA" },
+  intake: { name: "Ivy", role: "Intake clerk", job: "Reads every invoice and receipt", color: "#A8BEFF", ink: "var(--ink-intake)", tint: "var(--tint-intake)" },
+  verification: { name: "Vera", role: "Verification analyst", job: "Checks the payee, bank and contacts", color: "#FFD670", ink: "var(--ink-verification)", tint: "var(--tint-verification)" },
+  caller: { name: "Cal", role: "Caller", job: "Phones the vendor to confirm changes", color: "#FFB596", ink: "var(--ink-caller)", tint: "var(--tint-caller)" },
+  payments: { name: "Penny", role: "Payments clerk", job: "Pays only when the gate allows. Plain code, no AI", color: "#8FDDB7", ink: "var(--ink-payments)", tint: "var(--tint-payments)" },
+  controller: { name: "Cora", role: "Controller", job: "Applies your policy and explains every decision", color: "#C6B0FF", ink: "var(--ink-controller)", tint: "var(--tint-controller)" },
+  human: { name: "You", role: "Approver", job: "Signs when a payment needs a person", color: "#DCE3EE", ink: "var(--ink-human)", tint: "var(--tint-human)" },
+  system: { name: "Quintet", role: "System", job: "Setup and housekeeping", color: "#E3E7EE", ink: "var(--ink-system)", tint: "var(--tint-system)" },
 };
 
 export const TEAM: Seat[] = ["intake", "verification", "controller", "caller", "payments"];
