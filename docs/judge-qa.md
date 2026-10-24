@@ -13,9 +13,9 @@ Diego owns these. Update them with real eval numbers before Sunday.
    - **How we know it works:** a 25-case eval with expected verdicts, re-runnable from the scorecard. Every decision traces through the audit log.
 
 2. **Why not Ramp, Bill.com or nickel.com?**
-   - They're payment and approval platforms. Quintet is an independent verification layer in front of any payment tool: it checks every invoice, bank change and receipt before money moves, phones the number on file, and explains each decision from an audit log.
+   - They're payment and approval platforms. Quintet is an independent verification layer in front of any payment tool: it checks every invoice, bank change and receipt before money moves, calls the vendor on file, and explains each decision from an audit log.
    - A small business without a finance team can't staff that second pair of eyes.
-   - nickel.com's AI agent "Penny" is the closest: it already does small-business accounts payable by email, with approvals. Our difference is independent verification: a callback to the number on file, CRS identity and fraud checks, a tested rules gate the model can't loosen, and injection defense.
+   - nickel.com's AI agent "Penny" is the closest: it already does small-business accounts payable by email, with approvals. Our difference is independent verification: a callback to the vendor on file, CRS identity and fraud checks, a tested rules gate the model can't loosen, and injection defense.
    - *(Verify what Ramp, Bill.com and nickel.com currently offer before the event. Don't claim they lack fraud checks.)*
 
 3. **What if the model is tricked?**
@@ -63,3 +63,6 @@ Diego owns these. Update them with real eval numbers before Sunday.
     - Real payment-rail latency.
 
     Each one already has a safe default: ask a human.
+
+**Is the call a real phone call?** (answer honestly)
+   - In the demo it's a Cartesia voice-agent call that rings in the browser, with a teammate answering as the vendor. Phone-network dialing needs a purchased number, which we skipped. The agent only ever targets the vendor's number on file, and "yes, we changed it" still only reaches ASK, so a forged answer can't move money.
