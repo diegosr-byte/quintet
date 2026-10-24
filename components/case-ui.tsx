@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import { Doc } from "@/convex/_generated/dataModel";
 import { cn } from "@/lib/utils";
+import { AgentAvatar, Seat } from "@/components/agents";
 
 type Verdict = NonNullable<Doc<"cases">["verdict"]>;
 type CaseStatus = Doc<"cases">["status"];
@@ -24,25 +25,28 @@ export function formatTime(ms: number) {
   return new Date(ms).toLocaleTimeString([], { hour: "numeric", minute: "2-digit", second: "2-digit" });
 }
 
+// Pastel fills with deep text and icons: soft on the eye, still readable from the back of the room.
 const VERDICTS: Record<Verdict, { icon: typeof CircleCheck; className: string }> = {
-  ALLOW: { icon: CircleCheck, className: "bg-green-700 text-white" },
-  ASK: { icon: TriangleAlert, className: "bg-amber-400 text-black" },
-  BLOCK: { icon: OctagonX, className: "bg-red-700 text-white" },
+  ALLOW: { icon: CircleCheck, className: "border-[#B5E8CC] bg-[#DCF5E7] text-[#0F6B3E]" },
+  ASK: { icon: TriangleAlert, className: "border-[#F6DC9A] bg-[#FFF1C9] text-[#7A4E00]" },
+  BLOCK: { icon: OctagonX, className: "border-[#F5BFC6] bg-[#FFE1E4] text-[#A3182B]" },
 };
 
 export function VerdictBadge({ verdict, size = "md" }: { verdict: Verdict | null; size?: "md" | "xl" }) {
+  const sizing = size === "xl" ? "gap-2.5 rounded-2xl px-5 py-3 text-3xl" : "gap-1.5 rounded-full px-3 py-1";
+  const iconSize = size === "xl" ? "size-8" : "size-5";
   if (!verdict) {
     return (
-      <span className={cn("inline-flex items-center gap-2 rounded-md border px-3 py-1 font-semibold text-muted-foreground", size === "xl" && "px-5 py-3 text-3xl")}>
-        <Clock className={size === "xl" ? "size-8" : "size-5"} aria-hidden />
+      <span className={cn("inline-flex items-center border bg-muted font-semibold text-muted-foreground", sizing)}>
+        <Clock className={iconSize} aria-hidden />
         PENDING
       </span>
     );
   }
   const { icon: Icon, className } = VERDICTS[verdict];
   return (
-    <span className={cn("inline-flex items-center gap-2 rounded-md px-3 py-1 font-bold tracking-wide", className, size === "xl" && "px-5 py-3 text-3xl")}>
-      <Icon className={size === "xl" ? "size-8" : "size-5"} aria-hidden />
+    <span className={cn("inline-flex items-center border font-bold tracking-wide", className, sizing)}>
+      <Icon className={iconSize} strokeWidth={2.5} aria-hidden />
       {verdict}
     </span>
   );
@@ -69,8 +73,14 @@ export function isFinal(status: CaseStatus) {
   return status === "paid" || status === "blocked" || status === "rejected" || status === "failed";
 }
 
-// The five steps a case moves through on the ops board.
-const STEPS = ["Intake", "Verify", "Gate", "Call", "Pay"] as const;
+// The five steps a case moves through, each done by one agent.
+export const STEPS: { label: string; seat: Seat }[] = [
+  { label: "Intake", seat: "intake" },
+  { label: "Verify", seat: "verification" },
+  { label: "Gate", seat: "controller" },
+  { label: "Call", seat: "caller" },
+  { label: "Pay", seat: "payments" },
+];
 
 // A failed case doesn't record which seat it died in, so infer it: no amount means intake never
 // finished, no verdict means verification did not, and a verdict means it failed while paying.
@@ -80,7 +90,7 @@ function failedStep(c: Pick<Doc<"cases">, "amountCents" | "verdict">) {
   return 4;
 }
 
-function stepState(c: Pick<Doc<"cases">, "status" | "amountCents" | "verdict">): { at: number; tone: "working" | "waiting" | "done" | "stopped" } {
+export function stepState(c: Pick<Doc<"cases">, "status" | "amountCents" | "verdict">): { at: number; tone: "working" | "waiting" | "done" | "stopped" } {
   switch (c.status) {
     case "received":
     case "extracting":
@@ -106,24 +116,27 @@ function stepState(c: Pick<Doc<"cases">, "status" | "amountCents" | "verdict">):
 export function PipelineSteps({ c }: { c: Pick<Doc<"cases">, "status" | "amountCents" | "verdict"> }) {
   const { at, tone } = stepState(c);
   return (
-    <ol className="flex items-center gap-1" aria-label={`Status: ${statusLabel(c.status)}`}>
+    <ol className="flex items-center" aria-label={`Status: ${statusLabel(c.status)}`}>
       {STEPS.map((step, i) => {
         const done = i < at;
         const current = i === at;
         return (
-          <li
-            key={step}
-            className={cn(
-              "flex items-center gap-1 rounded px-2 py-0.5 text-base font-medium transition-colors duration-500",
-              done && "bg-green-700/15 text-green-800 dark:text-green-300",
-              current && tone === "working" && "bg-blue-600 text-white",
-              current && tone === "waiting" && "bg-amber-400 text-black",
-              current && tone === "stopped" && "bg-red-700 text-white",
-              !done && !current && "text-muted-foreground",
-            )}
-          >
-            {current && tone === "working" && <LoaderCircle className="size-3.5 animate-spin" aria-hidden />}
-            {step}
+          <li key={step.label} className="flex items-center">
+            {i > 0 && <span className={cn("mx-1 h-0.5 w-4 rounded-full", i <= at ? "bg-[#B5E8CC]" : "bg-border")} aria-hidden />}
+            <span
+              className={cn(
+                "flex items-center gap-1.5 rounded-full py-0.5 pl-0.5 pr-3 text-base font-medium transition-colors duration-500",
+                done && "text-foreground",
+                current && tone === "working" && "bg-[#E6ECFF] text-[#2D4BA6]",
+                current && tone === "waiting" && "bg-[#FFF1C9] text-[#7A4E00]",
+                current && tone === "stopped" && "bg-[#FFE1E4] text-[#A3182B]",
+                current && tone === "done" && "bg-[#DCF5E7] text-[#0F6B3E]",
+                !done && !current && "text-muted-foreground",
+              )}
+            >
+              <AgentAvatar seat={step.seat} size={26} busy={current && tone === "working"} dimmed={!done && !current} happy={current} />
+              {step.label}
+            </span>
           </li>
         );
       })}
@@ -134,14 +147,14 @@ export function PipelineSteps({ c }: { c: Pick<Doc<"cases">, "status" | "amountC
 export function StatusChip({ status }: { status: CaseStatus }) {
   const tone =
     status === "paid"
-      ? "bg-green-700 text-white"
+      ? "bg-[#DCF5E7] text-[#0F6B3E]"
       : status === "blocked" || status === "rejected" || status === "failed" || status === "awaiting_call"
-        ? "bg-red-700 text-white"
+        ? "bg-[#FFE1E4] text-[#A3182B]"
         : status === "awaiting_approval"
-          ? "bg-amber-400 text-black"
-          : "bg-blue-600 text-white";
+          ? "bg-[#FFF1C9] text-[#7A4E00]"
+          : "bg-[#E6ECFF] text-[#2D4BA6]";
   return (
-    <span className={cn("inline-flex items-center gap-1.5 rounded-md px-2.5 py-0.5 font-semibold", tone)}>
+    <span className={cn("inline-flex items-center gap-1.5 rounded-full px-3 py-0.5 font-semibold", tone)}>
       {(status === "received" || status === "extracting" || status === "checking" || status === "paying") && <LoaderCircle className="size-4 animate-spin" aria-hidden />}
       {statusLabel(status)}
     </span>
@@ -149,9 +162,9 @@ export function StatusChip({ status }: { status: CaseStatus }) {
 }
 
 const CHECK_RESULTS: Record<CheckResult, { icon: typeof CircleCheck; label: string; className: string }> = {
-  pass: { icon: CircleCheck, label: "PASS", className: "text-green-700 dark:text-green-400" },
-  fail: { icon: OctagonX, label: "FAIL", className: "text-red-700 dark:text-red-400" },
-  warn: { icon: TriangleAlert, label: "WARN", className: "text-amber-600 dark:text-amber-400" },
+  pass: { icon: CircleCheck, label: "PASS", className: "text-[#0F6B3E]" },
+  fail: { icon: OctagonX, label: "FAIL", className: "text-[#A3182B]" },
+  warn: { icon: TriangleAlert, label: "WARN", className: "text-[#7A4E00]" },
   skipped: { icon: CircleMinus, label: "SKIPPED", className: "text-muted-foreground" },
 };
 
@@ -218,7 +231,7 @@ export function failLabel(kind: Doc<"checks">["kind"]) {
 
 export function SyntheticBadge() {
   return (
-    <span className="rounded border-2 border-dashed border-amber-500 px-2 py-0.5 text-sm font-bold tracking-widest text-amber-700 dark:text-amber-400">
+    <span className="rounded-full border border-dashed border-[#E9C46A] bg-[#FFF8E6] px-2.5 py-0.5 text-sm font-bold tracking-widest text-[#7A5300]">
       SYNTHETIC
     </span>
   );

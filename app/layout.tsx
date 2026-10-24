@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { ThemeProvider } from "next-themes";
 import { Geist, Geist_Mono } from "next/font/google";
 import ConvexClientProvider from "@/components/ConvexClientProvider";
+import { StatusWidget } from "@/components/StatusWidget";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -35,8 +36,12 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <ThemeProvider attribute="class">
-          <ConvexClientProvider>{children}</ConvexClientProvider>
+        {/* Light only: the pastel palette is designed for a bright projector. */}
+        <ThemeProvider attribute="class" forcedTheme="light">
+          <ConvexClientProvider>
+            {children}
+            <StatusWidget />
+          </ConvexClientProvider>
         </ThemeProvider>
       </body>
     </html>

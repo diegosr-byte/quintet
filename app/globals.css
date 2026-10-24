@@ -5,32 +5,33 @@
 /* To change the theme colors, change the values below
   or use the "Copy code" button at https://ui.shadcn.com/themes */
 @layer base {
+  /* Soft, trustworthy: cool blue-gray canvas, white cards, deep navy text (team/kai.md: high contrast). */
   :root {
-    --background: 0 0% 100%;
-    --foreground: 20 14.3% 4.1%;
+    --background: 220 33% 97%;
+    --foreground: 218 42% 18%;
     --card: 0 0% 100%;
-    --card-foreground: 20 14.3% 4.1%;
+    --card-foreground: 218 42% 18%;
     --popover: 0 0% 100%;
-    --popover-foreground: 20 14.3% 4.1%;
-    --primary: 24 9.8% 10%;
-    --primary-foreground: 60 9.1% 97.8%;
-    --secondary: 60 4.8% 95.9%;
-    --secondary-foreground: 24 9.8% 10%;
-    --muted: 60 4.8% 95.9%;
-    --muted-foreground: 25 5.3% 44.7%;
-    --accent: 60 4.8% 95.9%;
-    --accent-foreground: 24 9.8% 10%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 60 9.1% 97.8%;
-    --border: 20 5.9% 90%;
-    --input: 20 5.9% 90%;
-    --ring: 20 14.3% 4.1%;
-    --chart-1: 12 76% 61%;
-    --chart-2: 173 58% 39%;
-    --chart-3: 197 37% 24%;
-    --chart-4: 43 74% 66%;
-    --chart-5: 27 87% 67%;
-    --radius: 0.5rem;
+    --popover-foreground: 218 42% 18%;
+    --primary: 212 58% 30%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 220 33% 94%;
+    --secondary-foreground: 218 42% 18%;
+    --muted: 220 30% 94%;
+    --muted-foreground: 218 16% 40%;
+    --accent: 222 50% 95%;
+    --accent-foreground: 218 42% 18%;
+    --destructive: 354 74% 37%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 220 26% 88%;
+    --input: 220 26% 84%;
+    --ring: 222 70% 60%;
+    --chart-1: 225 100% 86%;
+    --chart-2: 43 100% 78%;
+    --chart-3: 18 100% 84%;
+    --chart-4: 151 57% 78%;
+    --chart-5: 256 100% 88%;
+    --radius: 1rem;
   }
   .dark {
     --background: 20 14.3% 4.1%;
@@ -66,5 +67,35 @@
   }
   body {
     @apply bg-background text-foreground;
+    font-family: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
   }
+}
+
+@layer components {
+  /* White card with a soft, low shadow (reference: agent team diagram). */
+  .soft-card {
+    @apply rounded-2xl border border-border/70 bg-card;
+    box-shadow: 0 1px 2px rgb(28 43 69 / 0.04), 0 6px 20px rgb(28 43 69 / 0.06);
+  }
+}
+
+/* Agents blink every few seconds and bob gently while they work. */
+@keyframes agent-blink {
+  0%, 94%, 100% { transform: scaleY(1); }
+  97% { transform: scaleY(0.1); }
+}
+@keyframes agent-bob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-3px); }
+}
+.agent-eyes {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: agent-blink 5s infinite;
+}
+.agent-busy {
+  animation: agent-bob 1.4s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .agent-eyes, .agent-busy { animation: none; }
 }

@@ -3,6 +3,7 @@
 // Case page: the document, its extracted fields, every check with evidence, the verdict and why,
 // approvals, the call, and the audit timeline. All live via Convex reactive queries.
 import Link from "next/link";
+import { useState } from "react";
 import { useParams } from "next/navigation";
 import { useMutation, useQuery } from "convex/react";
 import { ArrowLeft, OctagonX } from "lucide-react";
@@ -17,9 +18,10 @@ import {
   PipelineSteps,
   StatusChip,
   SyntheticBadge,
-  VerdictBadge,
 } from "@/components/case-ui";
 import { ApprovalPanel } from "@/components/ApprovalPanel";
+import { VerdictButton, WhyPanel } from "@/components/CaseWhy";
+import { AgentAvatar, AGENTS } from "@/components/agents";
 
 // Failures first, so the checks that decided the verdict are the ones on screen.
 const RESULT_ORDER: Record<Doc<"checks">["result"], number> = { fail: 0, warn: 1, pass: 2, skipped: 3 };
@@ -31,6 +33,7 @@ export default function CasePage() {
   const actions = useQuery(api.audit.forCase, { caseId });
   const calls = useQuery(api.calls.forCase, { caseId });
   const setFaultInjection = useMutation(api.cases.setFaultInjection);
+  const [whyOpen, setWhyOpen] = useState(false);
 
   if (data === undefined) return <main className="p-6 text-lg text-muted-foreground">Loading…</main>;
   if (data === null) return <main className="p-6 text-lg">Case not found.</main>;
@@ -41,13 +44,13 @@ export default function CasePage() {
   const redFlags = checks.filter((ch) => ch.result === "fail");
 
   return (
-    <main className="mx-auto max-w-7xl space-y-6 p-6 text-lg">
+    <main className="mx-auto max-w-7xl space-y-6 p-6 pb-28 text-lg">
       <Link href="/" className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground">
         <ArrowLeft className="size-5" aria-hidden /> Ops board
       </Link>
 
       {/* Verdict header: readable from the back of the room. */}
-      <header className="flex flex-wrap items-start justify-between gap-6 rounded-xl border p-6">
+      <header className="soft-card flex flex-wrap items-start justify-between gap-6 p-6">
         <div className="space-y-2">
           <div className="flex items-center gap-3">
             <h1 className="text-3xl font-bold">{party?.displayName ?? ex?.vendorOrMerchantName ?? doc?.fileName ?? "Unknown payee"}</h1>
@@ -63,22 +66,30 @@ export default function CasePage() {
             <StatusChip status={c.status} />
           </div>
         </div>
-        <VerdictBadge verdict={c.verdict} size="xl" />
+        <VerdictButton verdict={c.verdict} size="xl" open={whyOpen} onToggle={() => setWhyOpen(!whyOpen)} controls="case-why" />
+        {whyOpen && (
+          <div className="w-full">
+            <WhyPanel id="case-why" c={c} />
+          </div>
+        )}
       </header>
 
       {/* The demo moment: failed checks big enough to read from the back of the room. */}
       {redFlags.length > 0 && (
-        <section aria-labelledby="flags-heading" className="rounded-xl border-4 border-red-700 p-6">
-          <h2 id="flags-heading" className="mb-4 text-2xl font-bold text-red-700 dark:text-red-400">
-            {redFlags.length} red flag{redFlags.length === 1 ? "" : "s"}
+        <section aria-labelledby="flags-heading" className="rounded-2xl border-2 border-[#F5BFC6] bg-[#FFF1F2] p-6">
+          <h2 id="flags-heading" className="mb-5 flex items-center gap-3 text-2xl font-bold text-[#A3182B]">
+            <AgentAvatar seat="verification" size={44} />
+            Vera found {redFlags.length} red flag{redFlags.length === 1 ? "" : "s"}
           </h2>
           <ul className="space-y-4">
             {redFlags.map((ch) => (
               <li key={ch._id} className="flex items-start gap-4">
-                <OctagonX className="mt-1 size-9 shrink-0 text-red-700 dark:text-red-400" aria-hidden />
+                <span className="mt-0.5 flex size-11 shrink-0 items-center justify-center rounded-full bg-[#FFE1E4]">
+                  <OctagonX className="size-7 text-[#A3182B]" strokeWidth={2.5} aria-hidden />
+                </span>
                 <div>
-                  <div className="text-3xl font-bold">{failLabel(ch.kind)}</div>
-                  <div className="text-xl text-muted-foreground">{ch.detail}</div>
+                  <div className="text-3xl font-bold text-[#7D1220]">{failLabel(ch.kind)}</div>
+                  <div className="text-xl text-[#6B3A40]">{ch.detail}</div>
                 </div>
               </li>
             ))}
@@ -93,45 +104,23 @@ export default function CasePage() {
         </section>
       )}
 
-      {c.reasons.length > 0 && (
-        <section aria-labelledby="why-heading" className="rounded-xl border p-6">
-          <h2 id="why-heading" className="mb-3 text-2xl font-semibold">Why</h2>
-          <ul className="space-y-2">
-            {c.reasons.map((r, i) => (
-              <li key={i} className="flex gap-3">
-                <span aria-hidden>•</span>
-                <span>{r}</span>
-              </li>
-            ))}
-          </ul>
-          {c.ruleIds.length > 0 && (
-            <div className="mt-3 flex flex-wrap gap-2">
-              {c.ruleIds.map((r) => (
-                <span key={r} className="rounded bg-muted px-2 py-0.5 font-mono text-base">{r}</span>
-              ))}
-            </div>
-          )}
-          {c.explanation && <p className="mt-4 border-t pt-4 text-muted-foreground">{c.explanation}</p>}
-        </section>
-      )}
-
       <div className="grid gap-6 lg:grid-cols-2">
         {/* The document as received: PDF or photo. */}
         <section aria-labelledby="doc-heading" className="space-y-3">
           <h2 id="doc-heading" className="text-2xl font-semibold">Document</h2>
           {doc?.fileUrl ? (
             doc.mimeType === "application/pdf" ? (
-              <iframe src={doc.fileUrl} title={doc.fileName} className="h-[36rem] w-full rounded-xl border" />
+              <iframe src={doc.fileUrl} title={doc.fileName} className="soft-card h-[36rem] w-full" />
             ) : (
               // eslint-disable-next-line @next/next/no-img-element
-              <img src={doc.fileUrl} alt={doc.fileName} className="max-h-[36rem] w-full rounded-xl border object-contain" />
+              <img src={doc.fileUrl} alt={doc.fileName} className="soft-card max-h-[36rem] w-full object-contain" />
             )
           ) : (
             <p className="text-muted-foreground">No file.</p>
           )}
           {doc && doc.injectionFindings.length > 0 && (
-            <div role="alert" className="rounded-xl border-2 border-red-700 p-4">
-              <div className="font-bold text-red-700 dark:text-red-400">Hidden instructions found in the document (treated as evidence, not commands)</div>
+            <div role="alert" className="rounded-2xl border border-[#F5BFC6] bg-[#FFF1F2] p-4">
+              <div className="font-bold text-[#A3182B]">Hidden instructions found in the document (treated as evidence, not commands)</div>
               <ul className="mt-2 space-y-1">
                 {doc.injectionFindings.map((f, i) => (
                   <li key={i} className="font-mono text-base">“{f.text}” <span className="text-muted-foreground">({f.where})</span></li>
@@ -144,7 +133,7 @@ export default function CasePage() {
         <section aria-labelledby="fields-heading" className="space-y-3">
           <h2 id="fields-heading" className="text-2xl font-semibold">Extracted fields</h2>
           {ex ? (
-            <dl className="grid grid-cols-[max-content_1fr] gap-x-6 gap-y-2 rounded-xl border p-4">
+            <dl className="soft-card grid grid-cols-[max-content_1fr] gap-x-6 gap-y-2 p-5">
               <Field label="Type" value={ex.docKind} />
               <Field label="From" value={ex.vendorOrMerchantName} />
               <Field label="Invoice #" value={ex.invoiceNumber} />
@@ -188,7 +177,7 @@ export default function CasePage() {
         {sortedChecks.length === 0 ? (
           <p className="text-muted-foreground">No checks yet.</p>
         ) : (
-          <ul className="divide-y rounded-xl border">
+          <ul className="soft-card divide-y divide-border/70">
             {sortedChecks.map((ch) => (
               <li key={ch._id} className="p-4">
                 <details>
@@ -198,7 +187,9 @@ export default function CasePage() {
                     <span className="text-muted-foreground">{ch.detail}</span>
                   </summary>
                   <div className="mt-3 pl-32 text-base">
-                    <div className="text-muted-foreground">Seat: {ch.seat}</div>
+                    <div className="flex items-center gap-2 text-muted-foreground">
+                      <AgentAvatar seat={ch.seat} size={24} /> Checked by {AGENTS[ch.seat].name}
+                    </div>
                     {ch.evidence !== null && <Evidence value={ch.evidence} />}
                   </div>
                 </details>
@@ -210,12 +201,15 @@ export default function CasePage() {
 
       <div className="grid gap-6 lg:grid-cols-2">
         <section aria-labelledby="payment-heading" className="space-y-3">
-          <h2 id="payment-heading" className="text-2xl font-semibold">Payment</h2>
+          <h2 id="payment-heading" className="flex items-center gap-3 text-2xl font-semibold">
+            <AgentAvatar seat="payments" size={36} busy={c.status === "paying"} />
+            Payment
+          </h2>
           {payments.length === 0 ? (
             <p className="text-muted-foreground">Not paid.</p>
           ) : (
             payments.map((p) => (
-              <div key={p._id} className="rounded-xl border p-4">
+              <div key={p._id} className="soft-card p-4">
                 <div className="flex justify-between">
                   <span className="font-semibold">{formatCents(p.amountCents, c.currency)} · {p.status}</span>
                   <span className="font-mono text-base text-muted-foreground">{p.tag}</span>
@@ -239,12 +233,15 @@ export default function CasePage() {
         </section>
 
         <section aria-labelledby="call-heading" className="space-y-3">
-          <h2 id="call-heading" className="text-2xl font-semibold">Verification call</h2>
+          <h2 id="call-heading" className="flex items-center gap-3 text-2xl font-semibold">
+            <AgentAvatar seat="caller" size={36} busy={c.status === "awaiting_call"} />
+            Verification call
+          </h2>
           {!calls || calls.length === 0 ? (
-            <p className="text-muted-foreground">{c.status === "awaiting_call" ? "Calling the vendor's number on file…" : "No call needed."}</p>
+            <p className="text-muted-foreground">{c.status === "awaiting_call" ? "Cal is calling the vendor's number on file…" : "No call needed."}</p>
           ) : (
             calls.map((call) => (
-              <div key={call._id} className="rounded-xl border p-4">
+              <div key={call._id} className="soft-card p-4">
                 <div className="flex justify-between font-semibold">
                   <span>To {call.toNumber} · {call.status}</span>
                   {call.outcome && <span>{call.outcome.replace(/_/g, " ")}</span>}
@@ -266,15 +263,18 @@ export default function CasePage() {
 
       <section aria-labelledby="audit-heading">
         <h2 id="audit-heading" className="mb-3 text-2xl font-semibold">Audit timeline</h2>
-        <ol className="relative space-y-3 border-l-2 pl-6">
+        <ol className="soft-card space-y-4 p-5">
           {(actions ?? []).map((a) => (
-            <li key={a._id}>
-              <div className="flex flex-wrap gap-3 text-base text-muted-foreground">
-                <span className="tabular-nums">{formatTime(a._creationTime)}</span>
-                <span className="font-semibold uppercase tracking-wide">{a.seat}</span>
-                {a.ruleIds && a.ruleIds.length > 0 && <span className="font-mono">{a.ruleIds.join(" ")}</span>}
+            <li key={a._id} className="flex gap-3">
+              <AgentAvatar seat={a.seat} size={32} className="mt-0.5" />
+              <div className="min-w-0">
+                <div className="flex flex-wrap items-baseline gap-x-3 text-base">
+                  <span className="font-semibold" style={{ color: AGENTS[a.seat].ink }}>{AGENTS[a.seat].name}</span>
+                  <span className="tabular-nums text-muted-foreground">{formatTime(a._creationTime)}</span>
+                  {a.ruleIds && a.ruleIds.length > 0 && <span className="font-mono text-muted-foreground">{a.ruleIds.join(" ")}</span>}
+                </div>
+                <p className="leading-snug">{a.summary}</p>
               </div>
-              <div>{a.summary}</div>
             </li>
           ))}
         </ol>
@@ -286,10 +286,10 @@ export default function CasePage() {
 // Evidence is whatever the seat recorded. Show objects as labeled rows; nested values as JSON.
 function Evidence({ value }: { value: unknown }) {
   if (typeof value !== "object" || value === null || Array.isArray(value)) {
-    return <pre className="mt-2 overflow-x-auto rounded bg-muted p-3 font-mono text-sm">{JSON.stringify(value, null, 2)}</pre>;
+    return <pre className="mt-2 overflow-x-auto rounded-xl bg-muted p-3 font-mono text-sm">{JSON.stringify(value, null, 2)}</pre>;
   }
   return (
-    <dl className="mt-2 grid grid-cols-[max-content_1fr] gap-x-6 gap-y-1 rounded bg-muted p-3">
+    <dl className="mt-2 grid grid-cols-[max-content_1fr] gap-x-6 gap-y-1 rounded-xl bg-muted p-3">
       {Object.entries(value).map(([k, v]) => (
         <div key={k} className="contents">
           <dt className="text-muted-foreground">{k.replace(/([a-z])([A-Z])/g, "$1 $2").toLowerCase()}</dt>
