@@ -26,7 +26,7 @@ Snap a photo of a receipt and the same gate applies company policy: itemized, re
 
 ## How we built it
 - **Claude** (Anthropic): structured-output extraction with no tools, the lookalike check, and plain-language explanations.
-- **The gate:** rules R0 to R10, with a triggering and a non-triggering test for each. Policy is data, so a new version is checked for loosening, which needs human approval.
+- **The gate:** rules R0 to R10, each covered by unit tests, plus the full moment end to end. Policy is data, so a new version is checked for loosening, which needs human approval.
 - **CRS Credit** sandbox: identity, Fraud Finder score and reverse-phone lookup on new payees and changed details, only through a hard-coded test-identity allowlist.
 - **Cartesia:** the verification call, and "Ask Quintet" spoken answers.
 - **Capital One Nessie:** sandbox accounts, payees and idempotent transfers.
