@@ -10,6 +10,7 @@ import { api } from "@/convex/_generated/api";
 import { Doc } from "@/convex/_generated/dataModel";
 import { AgentAvatar } from "@/components/agents";
 import { cn } from "@/lib/utils";
+import { WebCall } from "@/components/WebCall";
 
 type Call = FunctionReturnType<typeof api.calls.forCase>[number];
 
@@ -51,14 +52,14 @@ function CallCard({ call }: { call: Call }) {
   }, [lines, live]);
 
   const seconds = call.startedAt && call.endedAt ? Math.round((call.endedAt - call.startedAt) / 1000) : null;
-  const evalSim = call.toNumber === "simulated";
+  const evalSim = call.toNumber === "simulated" || call.toNumber === "simulated call";
   const demoSim = call.cartesiaCallId?.startsWith(SIMULATED_PREFIX) ?? false;
   const title = evalSim
     ? "Simulated call (eval)"
     : demoSim
       ? "Simulated call (demo fallback)"
       : call.toNumber === "web call"
-        ? "Web call to the vendor (demo mode)"
+        ? "Web call to the vendor (demo: answer in this browser)"
         : `Calling ${call.toNumber}, the number on file`;
 
   return (
@@ -113,6 +114,8 @@ function CallCard({ call }: { call: Call }) {
       ) : (
         <p className="p-4 text-base text-muted-foreground">{live ? "Waiting for someone to pick up…" : "No transcript recorded."}</p>
       )}
+
+      {web && live && <WebCall callId={call._id} caseId={call.caseId} status={call.status} />}
 
       {call.outcome && (
         <div className="border-t border-border/70 px-4 py-3">

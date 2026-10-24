@@ -32,7 +32,7 @@
 
 ## Table pitch: 3:00, then 2:00 of questions
 
-**Positions:** Kai in the middle with the laptop. Diego on the left, facing the judge. Josiah on the right with the phone on speaker, laptop screen visible. Speak to the judge, not the screen.
+**Positions:** Kai in the middle with the laptop. Diego on the left, facing the judge. Josiah on the right with his own laptop open to the case page, speaker on. Speak to the judge, not the screen.
 
 **Before each judge arrives (Kai):** reset the demo, run one routine invoice to warm it up, and have the console open on the scenario buttons.
 
@@ -40,7 +40,7 @@
 |---|---|---|
 | 0:00–0:20 | Diego | "Small businesses move real money through one person, with nobody checking their work, and fake 'we changed banks' invoices target exactly that gap. Quintet is the second signature. Every document takes the same five steps: **read, verify, call, decide, pay.** Watch where this one stops." Kai clicks "We switched banks" on the last words. |
 | 0:20–0:45 | Kai | Narrates the board as the steps light up. **Read:** "the bank details changed, and there's hidden text aimed at the AI." **Verify:** "three red checks: the bank, a CRS fraud score of 85 on the callback number, and the hidden instructions." Keep it short: the call starts on its own. |
-| 0:45–1:15 | Josiah | **Call.** "Step three: it calls the number we have on file, not the one on the invoice." The phone rings, Josiah answers as the vendor: "No, we didn't change anything." The live transcript is on screen. BLOCKED. |
+| 0:45–1:15 | Josiah | **Call.** "Step three: it calls the number we have on file, not the one on the invoice." The case page rings (a browser call, on Josiah's laptop with speaker on); Josiah answers as the vendor: "No, we didn't change anything." The live transcript is on screen. BLOCKED. |
 | 1:15–1:35 | Diego | **Decide.** "Why did you hold it?" (spoken, or typed if it's loud). The answer cites the audit log. "Every action is in an append-only log." |
 | 1:35–2:05 | Josiah (Kai drives) | **Pay.** Kai clicks "Routine invoice", with "break the payment" on. "It's allowed, and I'm breaking the payment on purpose. It retries, and pays exactly once, because every payment carries a unique key." Diego adds: "The model can't move money. A tested rules engine decides, and the model can only make it stricter." |
 | 2:05–2:30 | Judge, Kai runs it | "Your turn. Pick any of these (Kai shows the scenario buttons), or change the amount, the bank details or the vendor." If the judge hesitates, Diego picks "Over $1,000": it needs two signatures, a different verdict. |
@@ -66,7 +66,7 @@
 - **CRS:** "CRS is the verification analyst's eyes: identity, Fraud Finder and reverse phone on every new payee and every detail change. Allowlisted test identities, no credit pulls."
 - **Microsoft:** "Our rules come from a real published small-business expense policy, we measured 25 cases, and here's the path to production."
 - **Anthropic:** "For owner-operated small businesses with no finance team. Claude reads the messy documents, but can't move money. Here's where it could go wrong and our guard for each."
-- **Cartesia:** "Voice is the control, not a garnish. Our Caller seat phones the number on file, the step humans skip. Voice approvals are deliberately banned."
+- **Cartesia:** "Voice is the control, not a garnish. Our Caller seat calls the vendor on file, the step humans skip. Voice approvals are deliberately banned."
 - **Nessie:** "The business's bank: accounts, payees, transfers, idempotent retries."
 - **Convex:** "One reactive backend. Every seat's work shows up live; scheduled pipeline, webhooks for the call."
 - **Factory / Apify (if built):** "Droid turns a published expense-policy template (crawled by our Apify actor) into tested policy. A human approves the diff, and loosening is flagged."

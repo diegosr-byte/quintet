@@ -1,7 +1,7 @@
 // Seed data: docs/eval-cases.md "Seed data". Everything here is SYNTHETIC.
 // Run once per deployment: npx convex run seed:run
 import { v } from "convex/values";
-import { internalAction, internalMutation, internalQuery } from "./_generated/server";
+import { action, internalAction, internalMutation, internalQuery } from "./_generated/server";
 import { internal } from "./_generated/api";
 import { Id } from "./_generated/dataModel";
 import { appendAction } from "./audit";
@@ -248,5 +248,25 @@ export const createOrg = internalMutation({
       });
     }
     return orgId;
+  },
+});
+
+// The console's Reset button between judges: a fresh business (empty caps, no duplicates) replaces the live one.
+// The old org is kept but retired, so its audit log is not lost.
+export const swapPrimary = internalMutation({
+  args: { newOrgId: v.id("orgs") },
+  handler: async (ctx, { newOrgId }) => {
+    for (const o of await ctx.db.query("orgs").filter((q) => q.eq(q.field("isEval"), false)).collect()) {
+      await ctx.db.patch(o._id, { isEval: true, name: `${o.name} (retired)` });
+    }
+    await ctx.db.patch(newOrgId, { isEval: false, name: BUSINESS_NAME });
+  },
+});
+
+export const resetDemo = action({
+  args: {},
+  handler: async (ctx) => {
+    const newOrgId: Id<"orgs"> = await ctx.runAction(internal.seed.run, { isEval: true });
+    await ctx.runMutation(internal.seed.swapPrimary, { newOrgId });
   },
 });
