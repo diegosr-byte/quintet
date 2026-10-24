@@ -90,6 +90,14 @@ export default function OpsBoard() {
             </h1>
             <SyntheticBadge />
           </div>
+          <nav aria-label="Pages" className="mt-1 flex gap-4 text-base font-medium">
+            <Link href="/scorecard" className="text-muted-foreground hover:text-foreground">
+              Scorecard
+            </Link>
+            <Link href="/policy" className="text-muted-foreground hover:text-foreground">
+              Policy
+            </Link>
+          </nav>
         </div>
         <div className="flex flex-wrap items-center gap-3">
           <Button

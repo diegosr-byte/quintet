@@ -20,6 +20,7 @@ import {
   SyntheticBadge,
 } from "@/components/case-ui";
 import { ApprovalPanel } from "@/components/ApprovalPanel";
+import { CallPanel } from "@/components/CallPanel";
 import { VerdictButton, WhyPanel } from "@/components/CaseWhy";
 import { AgentAvatar, AGENTS } from "@/components/agents";
 
@@ -237,27 +238,7 @@ export default function CasePage() {
             <AgentAvatar seat="caller" size={36} busy={c.status === "awaiting_call"} />
             Verification call
           </h2>
-          {!calls || calls.length === 0 ? (
-            <p className="text-muted-foreground">{c.status === "awaiting_call" ? "Cal is calling the vendor's number on file…" : "No call needed."}</p>
-          ) : (
-            calls.map((call) => (
-              <div key={call._id} className="soft-card p-4">
-                <div className="flex justify-between font-semibold">
-                  <span>To {call.toNumber} · {call.status}</span>
-                  {call.outcome && <span>{call.outcome.replace(/_/g, " ")}</span>}
-                </div>
-                {call.transcript.length > 0 && (
-                  <ol className="mt-3 max-h-80 space-y-2 overflow-y-auto">
-                    {call.transcript.map((t, i) => (
-                      <li key={i}>
-                        <span className="font-semibold">{t.speaker}:</span> {t.text}
-                      </li>
-                    ))}
-                  </ol>
-                )}
-              </div>
-            ))
-          )}
+          <CallPanel calls={calls} awaiting={c.status === "awaiting_call"} />
         </section>
       </div>
 
