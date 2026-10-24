@@ -20,6 +20,7 @@ import {
   SyntheticBadge,
 } from "@/components/case-ui";
 import { ApprovalPanel } from "@/components/ApprovalPanel";
+import { AskPanel } from "@/components/AskPanel";
 import { CallPanel } from "@/components/CallPanel";
 import { VerdictButton, WhyPanel } from "@/components/CaseWhy";
 import { AgentAvatar, AGENTS } from "@/components/agents";
@@ -104,6 +105,15 @@ export default function CasePage() {
           <ApprovalPanel c={c} approvals={approvals} />
         </section>
       )}
+
+      <section aria-labelledby="ask-heading" className="soft-card space-y-4 p-6">
+        <h2 id="ask-heading" className="flex items-center gap-3 text-2xl font-semibold">
+          <AgentAvatar seat="controller" size={36} />
+          Ask Cora
+          <span className="text-base font-normal text-muted-foreground">about this payment</span>
+        </h2>
+        <AskPanel caseId={caseId} />
+      </section>
 
       <div className="grid gap-6 lg:grid-cols-2">
         {/* The document as received: PDF or photo. */}

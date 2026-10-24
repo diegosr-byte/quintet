@@ -9,6 +9,7 @@
  */
 
 import type * as approvals from "../approvals.js";
+import type * as ask from "../ask.js";
 import type * as audit from "../audit.js";
 import type * as calls from "../calls.js";
 import type * as cases from "../cases.js";
@@ -40,6 +41,7 @@ import type {
 
 declare const fullApi: ApiFromModules<{
   approvals: typeof approvals;
+  ask: typeof ask;
   audit: typeof audit;
   calls: typeof calls;
   cases: typeof cases;
