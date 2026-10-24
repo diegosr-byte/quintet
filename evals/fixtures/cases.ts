@@ -48,7 +48,7 @@ export const EVAL_CASES: EvalCase[] = [
     spec: { template: "invoice_b", payee: "paperkite", invoiceNumber: "PK-2005", amountCents: 9500 } },
   { id: "E06", group: "legit", scenario: "Cleaning supplies", wave: 1, expected: ["ALLOW"], rules: [],
     spec: { template: "invoice_c", payee: "saltmarsh", invoiceNumber: "SM-2006", amountCents: 21000 } },
-  // Reimbursements: generated receipts stand in for the real photos until those are taken.
+  // Reimbursements: generated receipts stand in unless real team receipt photos are passed to evals.run.
   { id: "E07", group: "legit", scenario: "Client lunch", wave: 1, expected: ["ALLOW"], rules: [], submittedByPartyKey: "employeeA",
     spec: receipt("employeeA", "Harbor Deli", [["Sandwich platter", 3260], ["Sparkling water", 1000]]) },
   { id: "E08", group: "legit", scenario: "Printer paper", wave: 1, expected: ["ALLOW"], rules: [], submittedByPartyKey: "employeeB",

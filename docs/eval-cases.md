@@ -68,7 +68,7 @@ Fictional names; searched Oct 22–23; no matching business was found. Names mar
 - **R9:** each regular vendor's 7-day total stays at or under $500. That's why the legit amounts are small.
 
 **Photos:**
-- E07–E10 are photos of the team's own purchases at the event, with card digits masked.
+- E07–E10 are photos of receipts from team members' own purchases (the whole team's, not one person's), with card digits masked. Each is submitted as a different synthetic employee, so the receipt's buyer is not the employee named in the case.
 - The alcohol receipt (E21) is generated, because no one buys alcohol.
 
 ## Live demo cases (not scored)

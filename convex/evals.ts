@@ -1,5 +1,6 @@
 // The eval runner (evals/fixtures/README.md): a fresh eval org per run, wave 1 then wave 2, at most 6 cases at a time.
 // Run it with: npx convex run evals:run   (or '{"only":["E13"]}' for a subset)
+// Real photos replace the generated receipt for that case: '{"photos":{"E07":{"storageId":"...","mimeType":"image/jpeg"}}}'
 import { v } from "convex/values";
 import { api, internal } from "./_generated/api";
 import { Id } from "./_generated/dataModel";
@@ -16,6 +17,12 @@ export const latest = query({
   handler: async (ctx) => {
     return await ctx.db.query("evalRuns").order("desc").first();
   },
+});
+
+// Real receipt photos go to Convex storage with evals/upload-photo.sh, then are passed to run as `photos`.
+export const uploadUrl = internalMutation({
+  args: {},
+  handler: async (ctx) => await ctx.storage.generateUploadUrl(),
 });
 
 export const start = internalMutation({
@@ -54,8 +61,11 @@ export const progress = internalQuery({
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 export const run = internalAction({
-  args: { only: v.optional(v.array(v.string())) },
-  handler: async (ctx, { only }) => {
+  args: {
+    only: v.optional(v.array(v.string())),
+    photos: v.optional(v.record(v.string(), v.object({ storageId: v.string(), mimeType: v.string() }))),
+  },
+  handler: async (ctx, { only, photos }) => {
     const cases = EVAL_CASES.filter((c) => !only || only.includes(c.id));
     const orgId: Id<"orgs"> = await ctx.runAction(internal.seed.run, { isEval: true });
     const runId: Id<"evalRuns"> = await ctx.runMutation(internal.evals.start, { orgId });
@@ -68,7 +78,12 @@ export const run = internalAction({
       const base = { evalCaseId: c.id, actual: null, paid: false, ms: 0, costUsd: 0, caseId: null as Id<"cases"> | null };
       try {
         // E19 submits the exact bytes E07 produced, so the sha256 matches.
-        const file = c.reuseFileOf ? stored.get(c.reuseFileOf) : await ctx.runAction(api.factory.render, c.spec);
+        const photo = photos?.[c.id];
+        const file = c.reuseFileOf
+          ? stored.get(c.reuseFileOf)
+          : photo
+            ? { ...photo, fileName: `${c.id}-photo` }
+            : await ctx.runAction(api.factory.render, c.spec);
         if (!file) throw new Error(`no stored file for ${c.reuseFileOf} (run its case first)`);
         stored.set(c.id, file);
         const caseId: Id<"cases"> = await ctx.runMutation(internal.documents.ingestForOrg, {
