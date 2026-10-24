@@ -70,7 +70,7 @@ Fictional names; searched Oct 22–23; no matching business was found. Names mar
 **Photos:**
 - E07–E10 are photos of receipts from team members' own purchases (the whole team's, not one person's), with card digits masked. Each is submitted as a different synthetic employee, so the receipt's buyer is not the employee named in the case.
 - E22 uses a real team receipt photo, dated 11/08/2025 (350 days old), so it fails the 30-day rule on a real document. E08–E10 stay generated until the team has receipts dated within the last 30 days (E07 is now a real photo); the README says which are real and which are synthetic.
-- E07 (a grocery receipt dated 10/24/2026) and E21 (an alcohol receipt, dated the same day) are real team receipt photos. E21's is a real beer purchase, so it triggers R8 on a real document.
+- E07 (a grocery receipt dated 10/24/2026) is a real team receipt photo. The alcohol receipt (E21) is generated: we don't put a real alcohol purchase in a public demo.
 
 ## Live demo cases (not scored)
 - **DEMO-1:** E13 with a **real** call to Josiah's phone.
