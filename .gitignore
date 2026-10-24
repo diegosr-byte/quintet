@@ -18,3 +18,9 @@ next-env.d.ts
 /out/
 *.pem
 npm-debug.log*
+
+# Convex-installed agent tooling
+.agents/
+.claude/skills/
+AGENTS.md
+skills-lock.json
