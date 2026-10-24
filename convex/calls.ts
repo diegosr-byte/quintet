@@ -163,6 +163,22 @@ export const recordOutcome = internalMutation({
   },
 });
 
+// Console fallback if the web call won't ring: plays the vendor's answer (default: "no, we changed nothing").
+export const simulate = mutation({
+  args: { caseId: v.id("cases"), outcome: v.optional(callOutcome) },
+  handler: async (ctx, { caseId, outcome }) => {
+    const c = (await ctx.db.get(caseId))!;
+    if (c.status !== "awaiting_call" || !c.partyId) return;
+    const now = Date.now();
+    const done = { toNumber: "simulated", status: "completed" as const, outcome: outcome ?? ("denied_change" as const), startedAt: now, endedAt: now };
+    const call = await ctx.db.query("calls").withIndex("by_case", (q) => q.eq("caseId", caseId)).first();
+    if (call?.status === "completed") return;
+    if (call) await ctx.db.patch(call._id, done);
+    else await ctx.db.insert("calls", { caseId, partyId: c.partyId, cartesiaCallId: null, transcript: [], ...done });
+    await logResult(ctx, caseId, done.outcome, true);
+  },
+});
+
 async function logResult(ctx: MutationCtx, caseId: Id<"cases">, outcome: Infer<typeof callOutcome>, simulated: boolean) {
   const c = (await ctx.db.get(caseId))!;
   await appendAction(ctx, {
