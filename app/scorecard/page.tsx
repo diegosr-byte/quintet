@@ -90,7 +90,7 @@ export default function ScorecardPage() {
       ) : (
         <>
           <Summary run={run} />
-          <Results run={run} />
+          {run.results.length > 0 && <Results run={run} />}
         </>
       )}
     </main>
@@ -114,7 +114,7 @@ function Summary({ run }: { run: Run }) {
     <section aria-label="Summary" className="space-y-2">
       <p className="text-base text-muted-foreground">
         {run.finishedAt === null
-          ? `Started ${new Date(run.startedAt).toLocaleTimeString()} · ${run.results.length} of ${EVAL_CASES.length} done`
+          ? `Started ${new Date(run.startedAt).toLocaleTimeString()} · the team is working through all ${EVAL_CASES.length} cases, results land when they're done`
           : `Finished ${new Date(run.finishedAt).toLocaleString()}`}
       </p>
       {s ? (
