@@ -76,9 +76,9 @@ async function buildInput(ctx: MutationCtx, c: Doc<"cases">, org: Doc<"orgs">, r
     payee: { known: payee?.known ?? false, firstPayment: payee?.firstPayment ?? true },
     crs: {
       identity: crs?.identity ?? "skipped",
-      fraudScore: crs?.fraudScore ?? null,
+      fraudScore: ev("crs_fraud_score")?.fraudScore ?? null,
       fraudAlert: crs?.fraudAlert ?? false,
-      reversePhone: crs?.reversePhone ?? "skipped",
+      reversePhone: ev("crs_reverse_phone")?.reversePhone ?? "skipped",
     },
     changed: { bank: bank?.changed ?? false, phone: contact?.phone ?? false, emailDomain: contact?.emailDomain ?? false },
     duplicate: { invoice: duplicate?.invoice ?? false, receipt: duplicate?.receipt ?? false },
@@ -104,7 +104,14 @@ export const decide = internalMutation({
     const input = await buildInput(ctx, c, org, rules);
     const decision = evaluate(rules, input);
 
-    const requiredApprovals = decision.verdict === "ASK" && decision.requiredApprovals.length === 0 ? ["owner" as const] : decision.requiredApprovals;
+    // ASK always needs the owner, plus the accountant over the two-signature limit. This only adds signers.
+    const requiredApprovals: ("owner" | "accountant")[] = [];
+    if (decision.verdict === "ASK") {
+      const roles = new Set(decision.requiredApprovals);
+      roles.add("owner");
+      if ((c.amountCents ?? 0) > rules.caps.accountantAboveCents) roles.add("accountant");
+      requiredApprovals.push(...(["owner", "accountant"] as const).filter((r) => roles.has(r)));
+    }
     let status: Doc<"cases">["status"];
     if (decision.verdict === "ALLOW") status = "paying";
     else if (decision.verdict === "ASK") status = "awaiting_approval";

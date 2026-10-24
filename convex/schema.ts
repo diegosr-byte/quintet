@@ -258,6 +258,9 @@ export default defineSchema({
     endedAt: v.union(v.number(), v.null()),
   }).index("by_case", ["caseId"]),
 
+  // A failed CRS login, recorded so no function on this deployment ever retries it.
+  crsLogin: defineTable({ failedAt: v.number(), error: v.string() }),
+
   evalRuns: defineTable({
     orgId: v.id("orgs"),
     policyVersionId: v.id("policyVersions"),

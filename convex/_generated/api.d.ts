@@ -18,6 +18,7 @@ import type * as explain from "../explain.js";
 import type * as gateRun from "../gateRun.js";
 import type * as intakeNode from "../intakeNode.js";
 import type * as lib_claude from "../lib/claude.js";
+import type * as lib_crs from "../lib/crs.js";
 import type * as lib_gate from "../lib/gate.js";
 import type * as lib_hash from "../lib/hash.js";
 import type * as lib_nessie from "../lib/nessie.js";
@@ -47,6 +48,7 @@ declare const fullApi: ApiFromModules<{
   gateRun: typeof gateRun;
   intakeNode: typeof intakeNode;
   "lib/claude": typeof lib_claude;
+  "lib/crs": typeof lib_crs;
   "lib/gate": typeof lib_gate;
   "lib/hash": typeof lib_hash;
   "lib/nessie": typeof lib_nessie;

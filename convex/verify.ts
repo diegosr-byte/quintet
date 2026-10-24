@@ -1,34 +1,94 @@
-// Verification seat. Tonight: on-file diff, duplicates, injection, receipt rules, parser cross-check.
-// Still to come (Fri 10 PM block): CRS through the allowlist, receipt amount+date+merchant duplicates,
-// and Claude's fuzzy match (modelRecommendation).
+// Verification seat: on-file diff, duplicates, CRS (allowlist only), injection scan, receipt rules,
+// parser cross-check, and Claude's lookalike check (modelRecommendation, which can only add caution).
 import { v, Infer } from "convex/values";
 import { internalAction, internalMutation, internalQuery } from "./_generated/server";
 import { internal } from "./_generated/api";
 import { Doc } from "./_generated/dataModel";
 import { appendAction } from "./audit";
+import { structured } from "./lib/claude";
+import { CrsResult, personaForContact, runCrsChecks } from "./lib/crs";
 import { bankFingerprint } from "./lib/hash";
 import { PolicyRules } from "./lib/policy";
 import { Extraction } from "./lib/schemas";
 import { checkKind, checkResult } from "./schema";
+import { VERIFY_SYSTEM_PROMPT, verifyJsonSchema } from "../prompts/verify";
 
 const DAY = 24 * 60 * 60 * 1000;
 
-export const payTo = internalQuery({
+export const inputs = internalQuery({
   args: { caseId: v.id("cases") },
   handler: async (ctx, { caseId }) => {
     const c = (await ctx.db.get(caseId))!;
     const doc = (await ctx.db.get(c.documentId))!;
-    return { status: c.status, payTo: doc.extracted?.payTo ?? null };
+    const vendors = await ctx.db
+      .query("parties")
+      .withIndex("by_org_kind", (q) => q.eq("orgId", c.orgId).eq("kind", "vendor"))
+      .collect();
+    return {
+      status: c.status,
+      kind: c.kind,
+      extracted: doc.extracted,
+      vendorsOnFile: vendors.map((p) => ({ name: p.displayName, emailDomain: p.emailDomain })),
+      crsLoginBlocked: (await ctx.db.query("crsLogin").first()) !== null,
+    };
   },
 });
 
+export const recordCrsLoginFailure = internalMutation({
+  args: { error: v.string() },
+  handler: async (ctx, { error }) => {
+    if (!(await ctx.db.query("crsLogin").first())) await ctx.db.insert("crsLogin", { failedAt: Date.now(), error });
+  },
+});
+
+type Recommendation = { recommendation: "NONE" | "ASK" | "BLOCK"; reason: string };
+
 export const run = internalAction({
   args: { caseId: v.id("cases") },
-  handler: async (ctx, { caseId }) => {
-    const { status, payTo } = await ctx.runQuery(internal.verify.payTo, { caseId });
-    if (status !== "checking") return;
-    const payToFingerprint = payTo ? await bankFingerprint(payTo.routingNumber, payTo.accountNumber) : null;
-    await ctx.runMutation(internal.verify.record, { caseId, payToFingerprint });
+  handler: async (ctx, { caseId }): Promise<null> => {
+    const i = await ctx.runQuery(internal.verify.inputs, { caseId });
+    if (i.status !== "checking" || !i.extracted) return null;
+    const e = i.extracted;
+    const payToFingerprint = e.payTo ? await bankFingerprint(e.payTo.routingNumber, e.payTo.accountNumber) : null;
+
+    // CRS: the document's contact details only pick a persona; only that persona's stored bodies are sent.
+    const personaId = personaForContact(e.contactPhone, e.contactEmail);
+    const crs: CrsResult = await runCrsChecks(personaId, { loginBlocked: i.crsLoginBlocked });
+    if (crs.status === "error" && crs.loginFailed) {
+      await ctx.runMutation(internal.verify.recordCrsLoginFailure, { error: crs.error });
+    }
+
+    // Claude's lookalike check (no tools). A failure adds no caution and is logged.
+    let model: Recommendation & { costUsd: number; error: string | null } = {
+      recommendation: "NONE",
+      reason: "Not a vendor invoice.",
+      costUsd: 0,
+      error: null,
+    };
+    if (i.kind === "vendor_payment") {
+      try {
+        const r = await structured<Recommendation>({
+          system: VERIFY_SYSTEM_PROMPT,
+          userText: JSON.stringify({
+            payeeFromDocument: { name: e.vendorOrMerchantName, email: e.contactEmail, phone: e.contactPhone },
+            vendorsOnFile: i.vendorsOnFile,
+          }),
+          schema: verifyJsonSchema,
+          effort: "low",
+        });
+        model = r.ok ? { ...r.value, costUsd: r.costUsd, error: null } : { ...model, reason: "Check failed.", costUsd: r.costUsd, error: r.error };
+      } catch (err) {
+        model = { ...model, reason: "Check failed.", error: (err as Error).message.slice(0, 200) };
+      }
+    }
+
+    await ctx.runMutation(internal.verify.record, {
+      caseId,
+      payToFingerprint,
+      crs: { personaId, result: crs },
+      model: { recommendation: model.recommendation, reason: model.reason, costUsd: model.costUsd, error: model.error },
+    });
+    return null;
   },
 });
 
@@ -63,8 +123,19 @@ type Check = {
 };
 
 export const record = internalMutation({
-  args: { caseId: v.id("cases"), payToFingerprint: v.union(v.string(), v.null()) },
-  handler: async (ctx, { caseId, payToFingerprint }) => {
+  args: {
+    caseId: v.id("cases"),
+    payToFingerprint: v.union(v.string(), v.null()),
+    crs: v.object({ personaId: v.union(v.string(), v.null()), result: v.any() }),
+    model: v.object({
+      recommendation: v.union(v.literal("NONE"), v.literal("ASK"), v.literal("BLOCK")),
+      reason: v.string(),
+      costUsd: v.number(),
+      error: v.union(v.string(), v.null()),
+    }),
+  },
+  handler: async (ctx, { caseId, payToFingerprint, crs: crsIn, model }) => {
+    const crs = crsIn.result as CrsResult;
     const c = (await ctx.db.get(caseId))!;
     if (c.status !== "checking") return;
     const doc = (await ctx.db.get(c.documentId))!;
@@ -129,8 +200,16 @@ export const record = internalMutation({
       detail: party
         ? `Payee on file: ${party.displayName}${firstPayment ? " (never paid)" : ""}.`
         : `"${e.vendorOrMerchantName ?? "unknown"}" is not on file.`,
-      evidence: { known, firstPayment, partyKey: party?.key ?? null, modelRecommendation: "NONE" },
+      evidence: { known, firstPayment, partyKey: party?.key ?? null, modelRecommendation: model.recommendation },
     });
+    if (c.kind === "vendor_payment") {
+      checks.push({
+        kind: "payee_known",
+        result: model.error ? "skipped" : model.recommendation === "NONE" ? "pass" : "warn",
+        detail: model.error ? `Lookalike check failed: ${model.error}` : `Lookalike check: ${model.recommendation}. ${model.reason}`,
+        evidence: { source: "claude", recommendation: model.recommendation, reason: model.reason, costUsd: model.costUsd },
+      });
+    }
 
     // Detail changes (R2), vendors only
     const changed = { bank: false, phone: false, emailDomain: false };
@@ -159,14 +238,48 @@ export const record = internalMutation({
       });
     }
 
-    // CRS (R3): the allowlisted client lands tonight; until then unknown payees are "skipped".
-    const identity = known ? "not_needed" : "skipped";
-    checks.push({
-      kind: "crs_identity",
-      result: "skipped",
-      detail: known ? "Payee verified at onboarding; no CRS check needed." : "CRS not run (client not wired yet).",
-      evidence: { identity, fraudScore: null, fraudAlert: false, reversePhone: "skipped" },
-    });
+    // CRS (R3). Runs only when the document's contact details exactly match an allowlisted persona.
+    if (crs.status === "ok") {
+      const failed = crs.identityMessages.filter((m) => m.code !== "2401").map((m) => m.text);
+      checks.push({
+        kind: "crs_identity",
+        result: crs.identity === "pass" ? (crs.fraudAlert ? "warn" : "pass") : "fail",
+        detail:
+          crs.identity === "pass"
+            ? `CRS identity verified${crs.fraudAlert ? ", but a fraud alert is on file" : ""}.`
+            : `CRS identity failed: ${failed.join("; ") || "identity did not verify"}.`,
+        evidence: { identity: crs.identity, fraudAlert: crs.fraudAlert, personaId: crs.personaId, messages: crs.identityMessages },
+      });
+      checks.push({
+        kind: "crs_fraud_score",
+        result: crs.fraudScore === null ? "skipped" : crs.fraudScore >= rules.crs.fraudScoreAskAt ? "fail" : "pass",
+        detail: `CRS fraud score ${crs.fraudScore ?? "unavailable"}/100.`,
+        evidence: { fraudScore: crs.fraudScore },
+      });
+      checks.push({
+        kind: "crs_reverse_phone",
+        result: crs.reversePhone === "mismatch" ? "fail" : crs.reversePhone === "match" ? "pass" : "skipped",
+        detail:
+          crs.reversePhone === "mismatch"
+            ? `CRS: the phone number belongs to someone else (${crs.reverseNames.join(", ")}).`
+            : crs.reversePhone === "match"
+              ? "CRS: the phone number belongs to the payee."
+              : "CRS: no record for this phone number.",
+        evidence: { reversePhone: crs.reversePhone },
+      });
+    } else {
+      const notNeeded = known && crsIn.personaId === null;
+      checks.push({
+        kind: "crs_identity",
+        result: crs.status === "error" ? "warn" : "skipped",
+        detail: notNeeded
+          ? "Payee verified at onboarding and contact details unchanged; no CRS check needed."
+          : crs.status === "error"
+            ? `CRS check failed: ${crs.error}`
+            : `CRS not run: ${crs.reason}.`,
+        evidence: { identity: notNeeded ? "not_needed" : "skipped", fraudAlert: false },
+      });
+    }
 
     // Duplicates (R6)
     let invoiceDup = false;
@@ -183,18 +296,36 @@ export const record = internalMutation({
       .query("documents")
       .withIndex("by_sha256", (q) => q.eq("sha256", doc.sha256))
       .collect();
-    const receiptDup =
-      e.docKind === "receipt" &&
-      sameFile.some(
-        (d) => d._id !== doc._id && d.orgId === c.orgId && d._creationTime > Date.now() - rules.duplicates.receiptWindowDays * DAY,
-      );
+    const windowStart = Date.now() - rules.duplicates.receiptWindowDays * DAY;
+    let receiptDup =
+      e.docKind === "receipt" && sameFile.some((d) => d._id !== doc._id && d.orgId === c.orgId && d._creationTime > windowStart);
+    if (e.docKind === "receipt" && !receiptDup && e.totalCents !== null && e.issueDate && e.vendorOrMerchantName) {
+      const orgCases = await ctx.db
+        .query("cases")
+        .withIndex("by_org_status", (q) => q.eq("orgId", c.orgId))
+        .collect();
+      for (const o of orgCases) {
+        if (o._id === caseId || o._creationTime < windowStart) continue;
+        const od = (await ctx.db.get(o.documentId))?.extracted;
+        if (
+          od?.docKind === "receipt" &&
+          od.totalCents === e.totalCents &&
+          od.issueDate === e.issueDate &&
+          od.vendorOrMerchantName !== null &&
+          normalizeName(od.vendorOrMerchantName) === normalizeName(e.vendorOrMerchantName)
+        ) {
+          receiptDup = true;
+          break;
+        }
+      }
+    }
     checks.push({
       kind: "duplicate",
       result: invoiceDup || receiptDup ? "fail" : "pass",
       detail: invoiceDup
         ? `Invoice ${c.invoiceNumber} from this payee was already submitted.`
         : receiptDup
-          ? "This exact receipt file was already submitted."
+          ? "This receipt (same file, or same amount, date and merchant) was already submitted."
           : "No duplicate found.",
       evidence: { invoice: invoiceDup, receipt: receiptDup },
     });
@@ -229,6 +360,19 @@ export const record = internalMutation({
       });
     }
 
+    if (crs.status !== "skipped") {
+      await appendAction(ctx, {
+        orgId: c.orgId,
+        caseId,
+        seat: "verification",
+        kind: "crs_called",
+        summary:
+          crs.status === "ok"
+            ? `CRS checks for persona ${crs.personaId}: identity ${crs.identity}, fraud score ${crs.fraudScore ?? "n/a"}, reverse phone ${crs.reversePhone}.`
+            : `CRS call failed: ${crs.error}`,
+        data: crs,
+      });
+    }
     for (const check of checks) {
       await ctx.db.insert("checks", { caseId, ...check, seat: "verification" });
       await appendAction(ctx, {

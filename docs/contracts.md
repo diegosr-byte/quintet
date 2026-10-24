@@ -131,6 +131,8 @@ Convex adds `_id` and `_creationTime` itself.
 
 **calls**: `caseId`, `partyId`, `toNumber` (copied from callTargetPhone), `cartesiaCallId`, `status` (`queued` `in_progress` `completed` `failed`), `outcome` (CallOutcome or null), `transcript` (`{ speaker, text }[]`), `startedAt`, `endedAt`.
 
+**crsLogin**: `failedAt`, `error`. One row once a CRS login fails; after that no function on the deployment logs in again.
+
 **evalRuns**: `orgId` (the eval org), `policyVersionId`, `startedAt`, `finishedAt`.
 - `results`: `{ evalCaseId, caseId, expected: Verdict[], actual, paid, ms, costUsd, pass, note }[]`
 - `summary`: `{ attacksStopped, attacksTotal, legitAuto, legitTotal, wrongfulHolds, askRate, medianMs, costPerCaseUsd }`
