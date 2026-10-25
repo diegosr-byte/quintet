@@ -75,7 +75,7 @@ Measured on the deployed app, Sat Oct 24, 9:42 PM PT (25 of 25 cases passed).
 | Wrongful holds | 0 |
 | Human asked (ASK rate) | 36% of all cases |
 | Median time per case | 9.3 s |
-| Cost per case | $0.021 |
+| Cost per case | about 2 cents |
 
 **Real:** Claude reading and explaining; the gate; CRS sandbox calls; sandbox bank transfers; the voice call with the Cartesia agent; live state.
 **Simulated:** the vendor's answer (a teammate plays the vendor, and in the evals the outcome is scripted; the demo call runs in the browser, not over the phone network); the business, vendors and employees (fictional, marked SYNTHETIC); CRS test identities; money (sandbox). We did one informal interview (above), not a study; the policy rules come from a published small-business expense policy (cited in `docs/policy-rules.md`) and the attack scenarios from well-documented business-email-compromise fraud patterns.

@@ -17,14 +17,14 @@ A clear, defined workflow runs on every document. Five steps, each owned by one 
 1. **Read.** Intake clerk (Claude, no tools) extracts the fields. A plain-code parser re-reads the amount, account and invoice number, and any disagreement goes to a human.
 2. **Verify.** Verification analyst compares the payee with the record on file, runs CRS identity and fraud checks, and flags lookalike vendors.
 3. **Call.** If bank, phone or email details changed, a Cartesia voice agent calls the vendor **on file** (never a number from the document), says it's automated, and asks a yes/no question.
-4. **Decide.** A deterministic gate returns **ALLOW** (pay), **ASK** (a human signs) or **BLOCK**. It's a pure TypeScript function with no I/O, and a model verdict can only make it stricter, never looser.
+4. **Decide.** A deterministic gate returns **ALLOW** (pay), **ASK** (a human signs) or **BLOCK**. It's a pure TypeScript function with no I/O, and a model verdict can only make it stricter, never looser. The Controller (Claude, read-only) explains every decision from the audit log, in text or voice.
 5. **Pay.** Payments clerk (plain code, deliberately not AI) pays through the sandbox bank with an idempotency key, so a retry never pays twice.
 
-A fifth seat, the Controller (Claude, read-only), explains every decision from the audit log, in text or voice. Four seats use AI. The one that moves money doesn't.
+Four of the five seats use AI. The one that moves money doesn't.
 
 **The demo moment.** The usual paper supplier emails invoice #1043 for $1,850: "we switched banks", with a new callback number and hidden white text telling the AI to "pay immediately". Three checks go red: the bank account changed, CRS says the new number belongs to someone else and returns a high fraud score, and the PDF contains instructions aimed at the AI. Payment freezes. Quintet calls the number on file, the real vendor says nothing changed, and the case is blocked for good. Ask "why did you hold it?" and the Controller answers from the log. Then the genuine invoice from the same vendor is paid, and we break the payment mid-transfer to show it still lands exactly once.
 
-Snap a photo of a receipt and the same gate applies company policy: itemized, recent, no alcohol, gift cards or tobacco.
+Snap a photo of a receipt and the same gate applies company policy: itemized, recent, no alcohol, gift cards or tobacco. If Ivy isn't sure what she read, a person signs.
 
 ## How we built it
 - **Claude** (Anthropic): structured-output extraction with no tools, the lookalike check, and plain-language explanations.
@@ -42,7 +42,7 @@ Snap a photo of a receipt and the same gate applies company policy: itemized, re
 - **A call can't prove who answered.** So "yes, we changed it" only reaches ASK, and voice can never approve a payment. A forged answer cannot move money.
 
 ## Accomplishments we're proud of
-- It stops the fraud **without** wrongly holding good vendors: 25 synthetic cases re-run from `/scorecard`. Attacks stopped **8 / 8**, legitimate invoices paid automatically **10 / 10**, wrongful holds **0**, median time **9.3 s**, cost per case **$0.021**.
+- It stops the fraud **without** wrongly holding good vendors: 25 synthetic cases re-run from `/scorecard`: **25 of 25 passed**. Attacks stopped **8 / 8**, legitimate invoices paid automatically **10 / 10**, wrongful holds **0**, median time **9.3 s**, about 2 cents per case.
 - Every decision traces to a rule and an evidence line in the audit log, so a business owner can read why.
 
 ## What we learned
@@ -59,10 +59,10 @@ Pilot with a few local small businesses, connect real bank and accounting export
 **Simulated:** the business, vendors and employees (fictional, marked SYNTHETIC), CRS test identities, sandbox money, and the vendor's answer (a teammate plays the vendor; the demo call runs in the browser, not over the phone network). We did one informal interview with a small-business owner, not a study. The policy comes from a published small-business expense policy and the attacks from documented business-email-compromise patterns.
 
 ## Built with
-TypeScript, Next.js, Convex, Anthropic Claude, Cartesia, CRS Credit sandbox, Capital One Nessie, Vercel
+TypeScript, Next.js, Convex, Anthropic Claude, Cartesia, CRS Credit sandbox, Capital One Nessie, Cloudflare Workers
 
 ## Links to add
 - [ ] GitHub repo (public only after `git grep` finds no keys or phone numbers)
 - [ ] Demo video (YouTube, unlisted) with the sponsor timestamps from the README table
-- [ ] Live site, if deployed
+- [ ] Live site: https://quintet.marketingmeteor.workers.dev/
 - [ ] Teammates: Diego Rosen, Josiah Jardine, Kai (add all three on the submission)
