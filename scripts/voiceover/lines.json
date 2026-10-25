@@ -17,15 +17,15 @@
       "id": "K01",
       "segment": "02-flags",
       "offset": 0.3,
-      "maxSeconds": 9.2,
-      "text": "Looks routine. But the bank changed, the callback isn't theirs, and hidden text tells the AI to pay. Frozen."
+      "maxSeconds": 9.6,
+      "text": "Looks routine. But the bank changed, the callback isn't theirs, and hidden text tells the AI to pay. Payment frozen."
     },
     {
       "id": "K02",
       "segment": "03-call",
       "offset": 0.3,
-      "maxSeconds": 5.5,
-      "text": "Cal calls the number we have on file, not the invoice's."
+      "maxSeconds": 6.5,
+      "text": "Cal, our Cartesia voice agent, calls the number on file, not the invoice's."
     },
     {
       "id": "K03",
@@ -47,14 +47,14 @@
       "segment": "05-cora",
       "offset": 3.2,
       "maxSeconds": 5.5,
-      "text": "Every decision is explained from the case's own record."
+      "text": "Claude explains every decision from the case's own record."
     },
     {
       "id": "K05",
       "segment": "06-checks",
       "offset": 0.3,
       "maxSeconds": 5.5,
-      "text": "Identity fails, fraud score 85, and the phone isn't theirs."
+      "text": "CRS says identity fails, fraud score 85, phone isn't theirs."
     },
     {
       "id": "J01",
@@ -67,9 +67,9 @@
       "id": "J02",
       "segment": "07-payonce",
       "anchor": "end",
-      "offset": -5.0,
-      "maxSeconds": 4.8,
-      "text": "The transfer fails, Penny retries, and it pays exactly once."
+      "offset": -5.6,
+      "maxSeconds": 5.4,
+      "text": "The Nessie transfer fails, Penny retries, and it pays exactly once."
     },
     {
       "id": "D03",
@@ -90,7 +90,7 @@
       "segment": "09-scorecard",
       "offset": 0.4,
       "maxSeconds": 8.2,
-      "text": "We test 25 cases every run. Every attack stopped, every good bill paid, no wrongful holds."
+      "text": "We test 25 cases every run. All 8 attacks stopped, all 10 good bills paid, zero wrongful holds."
     },
     {
       "id": "D04",

@@ -45,21 +45,33 @@ def find(stem):
     hits = [p for p in glob.glob(f"{args.audio}/{stem}.*") if not p.endswith(".txt")]
     return hits[0] if hits else None
 
-def speech_chunks(path):
-    """Split a long recording into spoken stretches wherever there is a pause of --gap seconds."""
-    out = run(["ffmpeg", "-hide_banner", "-i", path, "-vn", "-af", f"silencedetect=noise=-38dB:d={args.gap}", "-f", "null", "-"]).stderr
-    total = duration(path)
-    sil = [(float(a), float(b)) for a, b in zip(re.findall(r"silence_start: ([\d.]+)", out), re.findall(r"silence_end: ([\d.]+)", out))]
-    # silence_start can appear without a matching end at the very end of the file
+def audio_duration(path):
+    """Length of the audio track only (a video file's container can be longer than its sound)."""
+    r = run(["ffprobe", "-v", "error", "-select_streams", "a:0", "-show_entries", "stream=duration", "-of", "csv=p=0", path]).stdout.strip()
+    try: return float(r)
+    except ValueError: return duration(path)
+
+def speech_chunks(path, noise=-38, gap=1.0, min_len=0.3):
+    """Split a long recording into spoken stretches wherever there is a pause of `gap` seconds below `noise` dB."""
+    out = run(["ffmpeg", "-hide_banner", "-i", path, "-vn", "-af", f"silencedetect=noise={noise}dB:d={gap}", "-f", "null", "-"]).stderr
+    total = audio_duration(path)
     starts_ = [float(x) for x in re.findall(r"silence_start: ([\d.]+)", out)]
     ends_ = [float(x) for x in re.findall(r"silence_end: ([\d.]+)", out)]
     if len(starts_) > len(ends_): ends_.append(total)
     chunks, cur = [], 0.0
     for s, e in zip(starts_, ends_):
-        if s - cur > 0.15: chunks.append((cur, s))
+        if s - cur > min_len: chunks.append((cur, s))
         cur = e
-    if total - cur > 0.15: chunks.append((cur, total))
+    if total - cur > min_len: chunks.append((cur, total))
     return chunks
+
+def split_lines(path, expected):
+    """Try several noise levels and pause lengths until the number of spoken parts matches the number of lines."""
+    for noise in (-38, -34, -42, -30, -46, -50, -26):
+        for gap in (args.gap, 0.8, 1.3, 0.6, 1.6):
+            ch = speech_chunks(path, noise, gap)
+            if len(ch) == expected: return ch, None
+    return None, [round(b - a, 1) for a, b in speech_chunks(path)]
 
 def clean(src, a, b, dest):
     """Cut a..b out of src, trim edges, even out the loudness, mono 48 kHz."""
@@ -75,13 +87,13 @@ for key, person in names.items():
     for i, l in enumerate(mine):
         if per_line[l["id"]]:
             dest = f"{tmp}/{l['id']}.wav"
-            clean(per_line[l["id"]], 0, duration(per_line[l["id"]]), dest)
+            clean(per_line[l["id"]], 0, audio_duration(per_line[l["id"]]), dest)
             clips[l["id"]] = dest
     missing = [l for l in mine if l["id"] not in clips]
     if missing and combined:
-        ch = speech_chunks(combined)
-        if len(ch) != len(missing):
-            problems.append(f"{person}: found {len(ch)} spoken parts in {os.path.basename(combined)}, expected {len(missing)} ({', '.join(l['id'] for l in missing)}). Leave about 2 seconds of silence between lines, or record each line as its own file.")
+        ch, lengths = split_lines(combined, len(missing))
+        if ch is None:
+            problems.append(f"{person}: couldn't find {len(missing)} separate lines in {os.path.basename(combined)} (spoken parts found at the default setting, in seconds: {lengths}). Leave about 2 seconds of silence between lines and don't speak in the pauses, or record each line as its own file.")
         else:
             for l, (a, b) in zip(missing, ch):
                 dest = f"{tmp}/{l['id']}.wav"

@@ -15,7 +15,7 @@ Alternative: record each line as its own file, named by its id (`K03.m4a`). Both
 
 | Id | On screen | Say this | Room |
 |---|---|---|---|
-| **D01** | 0:00, the landing page, then the console | One person pays the bills, and nobody checks their work. This is Quintet. | 6.8 s |
+| **D01** | 0:00, landing page, then the console | One person pays the bills, and nobody checks their work. This is Quintet. | 6.8 s |
 | **D02** | 0:37, Ask Cora | Why was this stopped? | 2.2 s |
 | **D03** | 1:06, the receipt on the phone | Receipts work the same way. I snap one on my phone and send it to Ivy. | 8.0 s |
 | **D04** | 1:36, the closing landing page | Read, verify, call, decide, pay: five steps, five seats. Claude proposes, code countersigns. | 6.3 s |
@@ -24,11 +24,11 @@ Alternative: record each line as its own file, named by its id (`K03.m4a`). Both
 
 | Id | On screen | Say this | Room |
 |---|---|---|---|
-| **K01** | 0:08, the red flags fill in | Looks routine. But the bank changed, the callback isn't theirs, and hidden text tells the AI to pay. Frozen. | 9.2 s |
-| **K02** | 0:18, the call rings | Cal calls the number we have on file, not the invoice's. | 5.5 s |
-| **K03** | 0:18, the call rings | Blocked. | 1.5 s |
-| **K04** | 0:37, Ask Cora | Every decision is explained from the case's own record. | 5.5 s |
-| **K05** | 0:47, the failed checks | Identity fails, fraud score 85, and the phone isn't theirs. | 5.5 s |
+| **K01** | 0:08, the red flags fill in | Looks routine. But the bank changed, the callback isn't theirs, and hidden text tells the AI to pay. Payment frozen. | 9.6 s |
+| **K02** | 0:18, the call rings | Cal, our Cartesia voice agent, calls the number on file, not the invoice's. | 6.5 s |
+| **K03** | the end of the call clip | Blocked. | 1.5 s |
+| **K04** | 0:37, Ask Cora | Claude explains every decision from the case's own record. | 5.5 s |
+| **K05** | 0:47, the failed checks | CRS says identity fails, fraud score 85, phone isn't theirs. | 5.5 s |
 | **K06** | 1:15, Ivy reads it | Ivy reads it in seconds: who, when, how much. If she isn't sure, a person signs. | 8.5 s |
 
 ## Josiah
@@ -36,8 +36,11 @@ Alternative: record each line as its own file, named by its id (`K03.m4a`). Both
 | Id | On screen | Say this | Room |
 |---|---|---|---|
 | **J01** | 0:53, break the payment | Now a real invoice. I'm breaking the payment on purpose. | 5.0 s |
-| **J02** | 0:53, break the payment | The transfer fails, Penny retries, and it pays exactly once. | 4.8 s |
-| **J03** | 1:27, the scorecard | We test 25 cases every run. Every attack stopped, every good bill paid, no wrongful holds. | 8.2 s |
+| **J02** | 0:53, break the payment | The Nessie transfer fails, Penny retries, and it pays exactly once. | 5.4 s |
+| **J03** | 1:27, the scorecard | We test 25 cases every run. All 8 attacks stopped, all 10 good bills paid, zero wrongful holds. | 8.2 s |
+
+## Not a voiceover line: the live call
+During the real call take, whoever answers the vendor phone (`/vendor`) says: **"No, we didn't change anything."** It's recorded live with the call, not read from this script.
 
 ## After you've recorded
 Run `python3 scripts/voiceover/mix.py` (Claude can do this). It splits each person's recording into lines, evens out the volume, places every line at its clip, and writes `rough-cut-vo.mp4` with a report that flags any line that runs too long or is missing.
