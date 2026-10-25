@@ -1,0 +1,103 @@
+{
+  "note": "Every line is anchored to a segment of the cut (the names are the parts in ~/projects/quintet-demo-cut/parts). offset is seconds after the segment starts; anchor 'end' counts back from its end. maxSeconds is the room the line has. ~2.4 words per second.",
+  "speakers": {
+    "D": "Diego",
+    "K": "Kai",
+    "J": "Josiah"
+  },
+  "lines": [
+    {
+      "id": "D01",
+      "segment": "01-landing",
+      "offset": 0.4,
+      "maxSeconds": 6.8,
+      "text": "One person pays the bills, and nobody checks their work. This is Quintet."
+    },
+    {
+      "id": "K01",
+      "segment": "02-flags",
+      "offset": 0.3,
+      "maxSeconds": 9.2,
+      "text": "Looks routine. But the bank changed, the callback isn't theirs, and hidden text tells the AI to pay. Frozen."
+    },
+    {
+      "id": "K02",
+      "segment": "03-call",
+      "offset": 0.3,
+      "maxSeconds": 5.5,
+      "text": "Cal calls the number we have on file, not the invoice's."
+    },
+    {
+      "id": "K03",
+      "segment": "03-call",
+      "anchor": "end",
+      "offset": -2.0,
+      "maxSeconds": 1.5,
+      "text": "Blocked."
+    },
+    {
+      "id": "D02",
+      "segment": "05-cora",
+      "offset": 0.3,
+      "maxSeconds": 2.2,
+      "text": "Why was this stopped?"
+    },
+    {
+      "id": "K04",
+      "segment": "05-cora",
+      "offset": 3.2,
+      "maxSeconds": 5.5,
+      "text": "Every decision is explained from the case's own record."
+    },
+    {
+      "id": "K05",
+      "segment": "06-checks",
+      "offset": 0.3,
+      "maxSeconds": 5.5,
+      "text": "Identity fails, fraud score 85, and the phone isn't theirs."
+    },
+    {
+      "id": "J01",
+      "segment": "07-payonce",
+      "offset": 0.4,
+      "maxSeconds": 5.0,
+      "text": "Now a real invoice. I'm breaking the payment on purpose."
+    },
+    {
+      "id": "J02",
+      "segment": "07-payonce",
+      "anchor": "end",
+      "offset": -5.0,
+      "maxSeconds": 4.8,
+      "text": "The transfer fails, Penny retries, and it pays exactly once."
+    },
+    {
+      "id": "D03",
+      "segment": "08a-phone",
+      "offset": 0.5,
+      "maxSeconds": 8.0,
+      "text": "Receipts work the same way. I snap one on my phone and send it to Ivy."
+    },
+    {
+      "id": "K06",
+      "segment": "08b-receipt",
+      "offset": 0.5,
+      "maxSeconds": 8.5,
+      "text": "Ivy reads it in seconds: who, when, how much. If she isn't sure, a person signs."
+    },
+    {
+      "id": "J03",
+      "segment": "09-scorecard",
+      "offset": 0.4,
+      "maxSeconds": 8.2,
+      "text": "We test 25 cases every run. Every attack stopped, every good bill paid, no wrongful holds."
+    },
+    {
+      "id": "D04",
+      "segment": "10-close",
+      "offset": 0.3,
+      "maxSeconds": 6.3,
+      "text": "Read, verify, call, decide, pay: five steps, five seats. Claude proposes, code countersigns."
+    }
+  ]
+}
