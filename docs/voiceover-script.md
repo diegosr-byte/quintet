@@ -37,7 +37,7 @@ Alternative: record each line as its own file, named by its id (`K03.m4a`). Both
 |---|---|---|---|
 | **J01** | 0:53, break the payment | Now a real invoice. I'm breaking the payment on purpose. | 5.0 s |
 | **J02** | 0:53, break the payment | The Nessie transfer fails, Penny retries, and it pays exactly once. | 5.4 s |
-| **J03** | 1:27, the scorecard | We test 25 cases every run. All 8 attacks stopped, all 10 good bills paid, zero wrongful holds. | 8.2 s |
+| **J03** | 1:27, the scorecard | We test 25 cases every run. All 8 attacks stopped, all 10 good bills paid, zero wrongful holds. | 8.8 s |
 
 ## Not a voiceover line: the live call
 During the real call take, whoever answers the vendor phone (`/vendor`) says: **"No, we didn't change anything."** It's recorded live with the call, not read from this script.
