@@ -136,7 +136,8 @@ export default function Home() {
             Quintet
           </h1>
           <p className="mx-auto mt-4 text-2xl font-semibold tracking-tight sm:text-3xl">
-            The second signature for small-business payments.
+            <span className="block">Your AI finance team.</span>
+            <span className="block whitespace-nowrap">Every payment double-checked.</span>
           </p>
           <div className="mt-8 flex flex-wrap justify-center gap-3">
             <Link
