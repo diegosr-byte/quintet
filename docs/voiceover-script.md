@@ -17,7 +17,7 @@ Alternative: record each line as its own file, named by its id (`K03.m4a`). Both
 |---|---|---|---|
 | **D01** | 0:00, landing page, then the console | One person pays the bills, and nobody checks their work. This is Quintet. | 6.8 s |
 | **D02** | 0:41, Ask Cora | Why was this stopped? | 2.2 s |
-| **D03** | 1:08, the receipt on the phone | Receipts work the same way: snap one on your phone, and Ivy reads it. | 5.8 s |
+| **D03** | 1:08, the receipt on the phone | Receipts work the same way: snap one, and Ivy reads it. | 5.8 s |
 | **D04** | 1:35, the closing landing page | Read, verify, call, decide, pay: five steps, five seats. Claude proposes, code countersigns. | 6.3 s |
 
 ## Kai
@@ -25,7 +25,7 @@ Alternative: record each line as its own file, named by its id (`K03.m4a`). Both
 | Id | On screen | Say this | Room |
 |---|---|---|---|
 | **K01** | 0:08, the red flags fill in | Looks routine. But the bank changed, the callback isn't theirs, and hidden text tells the AI to pay. Payment frozen. | 9.6 s |
-| **K02** | 0:18, the call rings (before Cal speaks) | Cal, our Cartesia voice agent, calls the number on file. | 4.3 s |
+| **K02** | 0:18, the call rings (before Cal speaks) | Cal, our Cartesia agent, calls the number on file. | 4.3 s |
 | **K04** | 0:41, Ask Cora | Claude explains every decision from the case's own record. | 5.5 s |
 | **K05** | 0:49, the failed checks | CRS says identity fails, fraud score 85, phone isn't theirs. | 5.5 s |
 | **K06** | 1:14, Ivy reads it | Ivy reads it in seconds: who, when, how much. If she isn't sure, a person signs. | 8.5 s |

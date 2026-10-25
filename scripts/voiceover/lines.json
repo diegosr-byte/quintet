@@ -25,7 +25,7 @@
       "segment": "03-call",
       "offset": 0.1,
       "maxSeconds": 4.3,
-      "text": "Cal, our Cartesia voice agent, calls the number on file."
+      "text": "Cal, our Cartesia agent, calls the number on file."
     },
     {
       "id": "D02",
@@ -68,7 +68,7 @@
       "segment": "08a-phone",
       "offset": 0.5,
       "maxSeconds": 5.8,
-      "text": "Receipts work the same way: snap one on your phone, and Ivy reads it."
+      "text": "Receipts work the same way: snap one, and Ivy reads it."
     },
     {
       "id": "K06",
