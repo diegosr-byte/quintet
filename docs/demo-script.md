@@ -55,11 +55,11 @@
 - **The judge asks for something the console can't do.** "Good question, that one we can't run live, but here's what the gate would do." Answer from `policy-rules.md`.
 - **Always have the video ready** on a second tab, at the moment (0:00–0:40).
 
-## Needed before the first judge (ask Kai and Josiah)
-1. **A "break the payment" switch on the console, set before the case is created.** Today, fault injection is a checkbox on the case page. The pipeline pays in about 10 seconds, so ticking it after clicking races the payment, and you may be too late. This is the largest risk to the 1:35 beat.
-2. **A reset between judges.** Repeated demos hit the $3,000 daily cap (R5) and duplicate/same-vendor limits (R6, R9). I saw those rules fire in my own repeated E13 runs. The routine invoice must still pay on the tenth run, or "every legitimate invoice paid" is false at the table.
-3. **A "simulate the call" fallback**, so the BLOCK still happens if the real call fails.
-4. **Run it ten times in a row, back to back,** the way a day of judges will.
+## Before the first judge: status
+1. Break the payment before the case exists: built (console toggle, creation-time flag). Check once.
+2. Reset between judges: built (Reset demo button, `seed:resetDemo`). Check once.
+3. Simulate the call: built (button on the case page while the call rings). Check once.
+4. Run the whole pitch ten times back to back with reset between runs. Not done.
 
 ## 20-second sponsor add-ons (for judges who stop by)
 - **Hyphenate:** the seats line, plus "audit-ready by default: every action has an append-only log entry; try your own scenario."
@@ -68,5 +68,5 @@
 - **Anthropic:** "For owner-operated small businesses with no finance team. Claude reads the messy documents, but can't move money. Here's where it could go wrong and our guard for each."
 - **Cartesia:** "Voice is the control, not a garnish. Our Caller seat calls the vendor on file, the step humans skip. Voice approvals are deliberately banned."
 - **Nessie:** "The business's bank: accounts, payees, transfers, idempotent retries."
-- **Convex:** "One reactive backend. Every seat's work shows up live; scheduled pipeline, webhooks for the call."
+- **Convex:** "One reactive backend. Every seat's work shows up live; scheduled pipeline, live call state."
 - **Factory / Apify (if built):** "Droid turns a published expense-policy template (crawled by our Apify actor) into tested policy. A human approves the diff, and loosening is flagged."
