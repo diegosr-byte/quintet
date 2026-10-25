@@ -68,7 +68,7 @@ Diego owns these. Update them with real eval numbers before Sunday.
    - In the demo it's a Cartesia voice-agent call that rings in the browser, with a teammate answering as the vendor. Phone-network dialing needs a purchased number, which we skipped. The agent only ever targets the vendor's number on file, and "yes, we changed it" still only reaches ASK, so a forged answer can't move money.
 
 **Who did you talk to?** (answer honestly, and keep it short)
-   - One small-business owner, at the event: a two-person locksmith company with 5 or 6 invoices a day. Before we showed him anything he told us nobody checks his payments, a vendor once changed bank details on him without him noticing, and receipts are in spreadsheets.
+   - Alex Marianetti, owner of Lockhunt, a two-person locksmith company with 5 or 6 invoices a day. He agreed to be named and filmed. Before we showed him anything he told us nobody checks his payments, a vendor once changed bank details on him without him noticing, and receipts are in spreadsheets.
    - His reaction to the demo was positive and he said he'd pay for it. We treat that as one person's opinion, not demand validation.
    - His real objection was getting his data in. Today Quintet takes photos and PDFs; connecting to bank or accounting software is the first step in our path to production.
 

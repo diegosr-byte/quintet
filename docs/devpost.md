@@ -10,7 +10,7 @@ Hyphenate (primary), CRS Credit, Anthropic (Claude), Cartesia, Capital One Nessi
 ## Inspiration
 Picture a three-person print shop. One person pays the bills, and nobody checks their work. On Tuesday the usual paper supplier emails: "We've switched banks, please use the new account." The invoice looks right, the amount is normal, and the new account belongs to a fraudster. Nobody catches it, because nobody was ever positioned to. That is payment-redirection fraud, and it's built for exactly that gap. Quintet is the second signature a small business can't staff.
 
-We interviewed one owner at the event, the head of a two-person locksmith company who handles 5 or 6 invoices a day. Nobody double-checks his payments, a vendor once changed bank details on him and he "didn't realize till later", and receipts are "all done manually, in spreadsheets." When he saw Quintet stop the fake bank change, he called it "incredibly useful". His main objection: getting his existing invoices in. It's one interview, not validation, but it's the person we built this for.
+We interviewed one owner at the event, Alex Marianetti of Lockhunt, a two-person locksmith company that handles 5 or 6 invoices a day (he agreed to be named and filmed). Nobody double-checks his payments, a vendor once changed bank details on him and he "didn't realize till later", and receipts are "all done manually, in spreadsheets." When he saw Quintet stop the fake bank change, he called it "incredibly useful". His main objection: getting his existing invoices in. It's one interview, not validation, but it's the person we built this for.
 
 ## What it does
 A clear, defined workflow runs on every document. Five steps, each owned by one seat:

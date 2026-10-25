@@ -9,7 +9,7 @@ A small business usually has one person who pays the bills: the owner or an offi
 
 Quintet is the second signature. It checks every invoice, bank change and receipt **before** money moves, and it can only be made stricter by the AI, never looser.
 
-**One real owner, interviewed at the event.** We asked the owner of a two-person locksmith company, who gets "5 or 6 invoices every day", how he pays bills, before showing him anything:
+**One real owner, interviewed at the event.** We asked Alex Marianetti, who owns Lockhunt, a two-person locksmith company (he agreed to be named and filmed), and who gets "5 or 6 invoices every day", how he pays bills, before showing him anything:
 - Who checks his work? "I pay my bills, and honestly, I don't have anyone double-checking my work."
 - Has a vendor changed bank details on him? "Yes, and I didn't realize till later, which actually caused me some issues."
 - Receipts and reimbursements are "all done manually, in spreadsheets."
