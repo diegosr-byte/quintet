@@ -8,6 +8,7 @@ import { useRouter } from "next/navigation";
 import { useAction, useMutation } from "convex/react";
 import {
   ArrowLeft,
+  CircleCheck,
   LoaderCircle,
   QrCode,
   Smartphone,
@@ -179,8 +180,12 @@ export default function ConsolePage() {
   const [breakPayment, setBreakPayment] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const set = (patch: Partial<Knobs>) =>
+  // Which scenario the knobs came from. Changing a knob by hand makes it a custom setup.
+  const [scenario, setScenario] = useState<string | null>(SCENARIOS[0].label);
+  const set = (patch: Partial<Knobs>) => {
     setK((prev) => ({ ...prev, ...patch }));
+    setScenario(null);
+  };
   const isReceipt = k.template === "receipt";
   const onFile = !isReceipt && k.payeeMode === "on_file";
   const amountCents = k.duplicate
@@ -278,19 +283,51 @@ export default function ConsolePage() {
           <div>
             <h2 className="mb-3 text-xl font-semibold">
               Start from a scenario
+              {scenario === null && (
+                <span className="ml-2 rounded-full bg-muted px-2.5 py-0.5 align-middle text-sm font-medium text-muted-foreground">
+                  Custom
+                </span>
+              )}
             </h2>
             <div className="flex flex-wrap gap-2">
-              {SCENARIOS.map((s) => (
-                <button
-                  key={s.label}
-                  type="button"
-                  onClick={() => setK({ ...ROUTINE, ...s.knobs })}
-                  className="rounded-2xl border bg-card px-4 py-2 text-left transition-colors hover:bg-accent focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring"
-                >
-                  <div className="text-base font-semibold">{s.label}</div>
-                  <div className="text-sm text-muted-foreground">{s.hint}</div>
-                </button>
-              ))}
+              {SCENARIOS.map((s) => {
+                const selected = scenario === s.label;
+                return (
+                  <button
+                    key={s.label}
+                    type="button"
+                    aria-pressed={selected}
+                    onClick={() => {
+                      setK({ ...ROUTINE, ...s.knobs });
+                      setScenario(s.label);
+                    }}
+                    className={cn(
+                      "relative rounded-2xl border px-4 py-2 text-left transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring",
+                      selected
+                        ? "border-[#A8BEFF] bg-[#EEF2FF] pr-9 shadow-sm"
+                        : "bg-card hover:bg-accent",
+                    )}
+                  >
+                    <div
+                      className={cn(
+                        "text-base font-semibold",
+                        selected && "text-[#2D4BA6]",
+                      )}
+                    >
+                      {s.label}
+                    </div>
+                    <div className="text-sm text-muted-foreground">
+                      {s.hint}
+                    </div>
+                    {selected && (
+                      <CircleCheck
+                        className="absolute right-3 top-2.5 size-4 text-[#2D4BA6]"
+                        aria-hidden
+                      />
+                    )}
+                  </button>
+                );
+              })}
             </div>
             {/* Set before the case exists: the payment lands ~10 s after Generate, too fast to tick afterwards. */}
             <div className="mt-3 rounded-2xl border border-dashed px-2">
