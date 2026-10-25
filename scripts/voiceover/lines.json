@@ -23,17 +23,9 @@
     {
       "id": "K02",
       "segment": "03-call",
-      "offset": 0.3,
-      "maxSeconds": 6.5,
-      "text": "Cal, our Cartesia voice agent, calls the number on file, not the invoice's."
-    },
-    {
-      "id": "K03",
-      "segment": "03-call",
-      "anchor": "end",
-      "offset": -2.0,
-      "maxSeconds": 1.5,
-      "text": "Blocked."
+      "offset": 0.1,
+      "maxSeconds": 4.3,
+      "text": "Cal, our Cartesia voice agent, calls the number on file."
     },
     {
       "id": "D02",
@@ -75,8 +67,8 @@
       "id": "D03",
       "segment": "08a-phone",
       "offset": 0.5,
-      "maxSeconds": 8.0,
-      "text": "Receipts work the same way. I snap one on my phone and send it to Ivy."
+      "maxSeconds": 5.8,
+      "text": "Receipts work the same way: snap one on your phone, and Ivy reads it."
     },
     {
       "id": "K06",
