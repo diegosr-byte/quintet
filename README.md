@@ -51,16 +51,17 @@ Controller explains every decision from the append-only audit log.
 ```
 
 ## Where each sponsor's technology lives
-<!-- TODO (Diego, Sat night): add the video timestamp for each row. -->
-| Sponsor | What it does in Quintet | Video |
+Try each one in the [live app](https://quintet.marketingmeteor.workers.dev). The demo video is linked from our Devpost entry.
+
+| Sponsor | What it does in Quintet | See it in the app |
 |---|---|---|
-| **Hyphenate** | The five seats, each with scoped access, a work log and escalation; the moment; the live scenario console; the scorecard | TBD |
-| **CRS Credit** | Identity verification, Fraud Finder score and reverse-phone lookup on new payees and on any change of details, in the sandbox with test identities only, behind an allowlist (the sandbox forwards unknown requests to the real bureau, so none can reach it) | TBD |
-| **Anthropic (Claude)** | Reads documents with structured output and no tools; lookalike check; plain-language explanations. See failure modes below | TBD |
-| **Cartesia** | The Caller seat calls the vendor on file (a live voice call in the browser); "Ask Quintet" speaks answers | TBD |
-| **Capital One Nessie** | The business's bank: accounts, payees and idempotent transfers | TBD |
-| **Convex** | System of record, reactive live board, scheduled pipeline | TBD |
-| **Microsoft** | See "Responsible design" and "Path to production" below | TBD |
+| **Hyphenate** | The five seats, each with scoped access, a work log and escalation; the moment; the live scenario console; the scorecard | `/console`, `/agents`, `/scorecard` |
+| **CRS Credit** | Identity verification, Fraud Finder score and reverse-phone lookup on new payees and on any change of details, in the sandbox with test identities only, behind an allowlist (the sandbox forwards unknown requests to the real bureau, so none can reach it) | `/case` (checks list) |
+| **Anthropic (Claude)** | Reads documents with structured output and no tools; lookalike check; plain-language explanations. See failure modes below | `/upload`, `/case` |
+| **Cartesia** | The Caller seat calls the vendor on file (a live voice call in the browser); "Ask Quintet" speaks answers | `/case` (verification call), `/vendor` |
+| **Capital One Nessie** | The business's bank: accounts, payees and idempotent transfers | `/case` (payment panel) |
+| **Convex** | System of record, reactive live board, scheduled pipeline | `/board` (live) |
+| **Microsoft** | See "Responsible design" and "Path to production" below | `/policy` |
 
 ## Proof it works
 Measured on the deployed app, Sat Oct 24, 9:42 PM PT (25 of 25 cases passed).
