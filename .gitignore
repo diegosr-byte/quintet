@@ -28,3 +28,4 @@ skills-lock.json
 # Cloudflare (OpenNext)
 .open-next
 .wrangler
+scripts/out/
