@@ -213,62 +213,68 @@ function Results({ run }: { run: Run }) {
             </tr>
           </thead>
           <tbody className="divide-y divide-border/70">
-            {run.results.map((r) => {
-              const info = CASE_INFO.get(r.evalCaseId);
-              return (
-                <tr
-                  key={r.evalCaseId}
-                  className={cn(!r.pass && "bg-[#FFF7F8]")}
-                >
-                  <td className="px-4 py-3">
-                    <div className="font-semibold">
-                      {r.caseId ? (
-                        <Link
-                          href={`/case/${r.caseId}`}
-                          className="hover:underline"
-                        >
-                          {info?.scenario ?? r.evalCaseId}
-                        </Link>
-                      ) : (
-                        (info?.scenario ?? r.evalCaseId)
-                      )}
-                    </div>
-                    <div className="text-sm text-muted-foreground">
-                      {r.evalCaseId}
-                      {info && ` · ${GROUP_LABELS[info.group] ?? info.group}`}
-                      {r.paid && " · paid"}
-                    </div>
-                  </td>
-                  <td className="px-4 py-3">
-                    <span className="text-muted-foreground">
-                      {r.expected.join(" or ")}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3">
-                    <VerdictBadge verdict={r.actual} />
-                  </td>
-                  <td className="px-4 py-3 text-right tabular-nums text-muted-foreground">
-                    {(r.ms / 1000).toFixed(1)}s
-                  </td>
-                  <td className="px-4 py-3">
-                    {r.pass ? (
-                      <span className="inline-flex items-center gap-1.5 font-semibold text-[#0F6B3E]">
-                        <CircleCheck className="size-5" aria-hidden /> Pass
-                      </span>
-                    ) : (
-                      <span className="inline-flex items-center gap-1.5 font-semibold text-[#A3182B]">
-                        <CircleX className="size-5" aria-hidden /> Fail
-                      </span>
-                    )}
-                    {r.note && (
-                      <div className="text-sm text-muted-foreground">
-                        {r.note}
+            {[...run.results]
+              .sort((a, b) =>
+                a.evalCaseId.localeCompare(b.evalCaseId, undefined, {
+                  numeric: true,
+                }),
+              )
+              .map((r) => {
+                const info = CASE_INFO.get(r.evalCaseId);
+                return (
+                  <tr
+                    key={r.evalCaseId}
+                    className={cn(!r.pass && "bg-[#FFF7F8]")}
+                  >
+                    <td className="px-4 py-3">
+                      <div className="font-semibold">
+                        {r.caseId ? (
+                          <Link
+                            href={`/case/${r.caseId}`}
+                            className="hover:underline"
+                          >
+                            {info?.scenario ?? r.evalCaseId}
+                          </Link>
+                        ) : (
+                          (info?.scenario ?? r.evalCaseId)
+                        )}
                       </div>
-                    )}
-                  </td>
-                </tr>
-              );
-            })}
+                      <div className="text-sm text-muted-foreground">
+                        {r.evalCaseId}
+                        {info && ` · ${GROUP_LABELS[info.group] ?? info.group}`}
+                        {r.paid && " · paid"}
+                      </div>
+                    </td>
+                    <td className="px-4 py-3">
+                      <span className="text-muted-foreground">
+                        {r.expected.join(" or ")}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3">
+                      <VerdictBadge verdict={r.actual} />
+                    </td>
+                    <td className="px-4 py-3 text-right tabular-nums text-muted-foreground">
+                      {(r.ms / 1000).toFixed(1)}s
+                    </td>
+                    <td className="px-4 py-3">
+                      {r.pass ? (
+                        <span className="inline-flex items-center gap-1.5 font-semibold text-[#0F6B3E]">
+                          <CircleCheck className="size-5" aria-hidden /> Pass
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1.5 font-semibold text-[#A3182B]">
+                          <CircleX className="size-5" aria-hidden /> Fail
+                        </span>
+                      )}
+                      {r.note && (
+                        <div className="text-sm text-muted-foreground">
+                          {r.note}
+                        </div>
+                      )}
+                    </td>
+                  </tr>
+                );
+              })}
           </tbody>
         </table>
       </div>

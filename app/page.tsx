@@ -122,7 +122,7 @@ export default function Home() {
               href="/board"
               className="rounded-full bg-primary px-4 py-2 font-semibold text-primary-foreground hover:opacity-90"
             >
-              Live dashboard
+              Dashboard
             </Link>
           </nav>
         </div>
@@ -391,7 +391,7 @@ export default function Home() {
                 href="/board"
                 className="inline-flex items-center gap-2 rounded-full border bg-card px-6 py-3 font-semibold hover:bg-accent"
               >
-                See the live dashboard
+                See the dashboard
               </Link>
             </div>
           </div>

@@ -61,7 +61,7 @@ export default function CasePage() {
         href="/board"
         className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground"
       >
-        <ArrowLeft className="size-5" aria-hidden /> Ops board
+        <ArrowLeft className="size-5" aria-hidden /> Dashboard
       </Link>
 
       {/* Verdict header: readable from the back of the room. */}

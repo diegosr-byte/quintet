@@ -22,7 +22,7 @@ import { ThemeSwitch } from "@/components/ThemeSwitch";
 import { cn } from "@/lib/utils";
 
 const PAGES = [
-  { href: "/board", label: "Ops board", icon: LayoutDashboard },
+  { href: "/board", label: "Dashboard", icon: LayoutDashboard },
   { href: "/console", label: "Send a test", icon: FilePlus2 },
   { href: "/scorecard", label: "Scorecard", icon: BarChart3 },
   { href: "/policy", label: "Policy", icon: ScrollText },
@@ -94,7 +94,7 @@ export function AppSidebar() {
         </div>
 
         <nav className="flex-1 space-y-6 overflow-y-auto px-3 py-4">
-          <NavGroup title="App">
+          <NavGroup title="Workspace">
             {PAGES.map((p) => (
               <NavLink
                 key={p.href}
@@ -112,7 +112,7 @@ export function AppSidebar() {
 
           <TeamGroup active={pathname === "/agents"} />
 
-          <NavGroup title="Demo tools">
+          <NavGroup title="Other devices">
             {TOOLS.map((t) => (
               <NavLink key={t.href} href={t.href} newTab>
                 <t.icon className="size-[18px]" aria-hidden />

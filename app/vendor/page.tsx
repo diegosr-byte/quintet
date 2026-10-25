@@ -26,10 +26,19 @@ export default function VendorPhone() {
   // and stays shown after the call ends (so the outcome stays on screen) until a newer call rings.
   const waiting = useQuery(api.cases.list, { status: "awaiting_call" });
   const candidate = waiting?.[0] ?? null;
-  const candidateCalls = useQuery(api.calls.forCase, candidate ? { caseId: candidate._id } : "skip");
-  const candidateRinging = candidateCalls?.some((x) => x.status === "queued" || x.status === "in_progress") ?? false;
-  const [shownCaseId, setShownCaseId] = useState<Doc<"cases">["_id"] | null>(null);
-  if (candidate && candidateRinging && candidate._id !== shownCaseId) setShownCaseId(candidate._id);
+  const candidateCalls = useQuery(
+    api.calls.forCase,
+    candidate ? { caseId: candidate._id } : "skip",
+  );
+  const candidateRinging =
+    candidateCalls?.some(
+      (x) => x.status === "queued" || x.status === "in_progress",
+    ) ?? false;
+  const [shownCaseId, setShownCaseId] = useState<Doc<"cases">["_id"] | null>(
+    null,
+  );
+  if (candidate && candidateRinging && candidate._id !== shownCaseId)
+    setShownCaseId(candidate._id);
   const caseId = shownCaseId;
 
   const data = useQuery(api.cases.get, caseId ? { caseId } : "skip");
@@ -50,7 +59,9 @@ export default function VendorPhone() {
             <h1 className="text-2xl font-bold text-primary">Vendor phone</h1>
             <SyntheticBadge />
           </div>
-          <p className="text-base text-muted-foreground">Answer here when Cal calls to verify a bank change.</p>
+          <p className="text-base text-muted-foreground">
+            Answer here when Cal calls to verify a bank change.
+          </p>
         </div>
       </header>
 
@@ -77,20 +88,33 @@ export default function VendorPhone() {
           <div className="flex flex-1 flex-col items-center justify-center gap-3 text-muted-foreground">
             <AgentAvatar seat="caller" size={72} />
             <p>Waiting for a call…</p>
-            <p className="text-base">Generate &ldquo;We switched banks&rdquo; on the console and Cal will call here.</p>
+            <p className="text-base">
+              Run &ldquo;We switched banks&rdquo; from Send a test and Cal will
+              call here.
+            </p>
           </div>
         ) : (
           <>
-            <AgentAvatar seat="caller" size={96} happy={ringing || live} busy={ringing} />
+            <AgentAvatar
+              seat="caller"
+              size={96}
+              happy={ringing || live}
+              busy={ringing}
+            />
             <div>
               <div className="flex items-center justify-center gap-2 text-base text-muted-foreground">
                 <PhoneIncoming className="size-4" aria-hidden />
-                {ringing ? "Incoming call" : live ? "On the call" : "Call ended"}
+                {ringing
+                  ? "Incoming call"
+                  : live
+                    ? "On the call"
+                    : "Call ended"}
               </div>
               <div className="text-2xl font-bold">Cal · verification call</div>
               {c && (
                 <p className="text-base text-muted-foreground">
-                  About invoice {c.invoiceNumber ? `#${c.invoiceNumber}` : ""} · {formatCents(c.amountCents, c.currency)}
+                  About invoice {c.invoiceNumber ? `#${c.invoiceNumber}` : ""} ·{" "}
+                  {formatCents(c.amountCents, c.currency)}
                   {data?.party?.displayName && (
                     <>
                       <br />
@@ -106,13 +130,20 @@ export default function VendorPhone() {
                 <p className="rounded-full bg-muted px-4 py-1.5 font-semibold">
                   {call.outcome ? OUTCOME_LABELS[call.outcome] : "Call failed"}
                 </p>
-                <Link href={`/case/${call.caseId}`} className="text-base font-semibold text-primary hover:underline">
+                <Link
+                  href={`/case/${call.caseId}`}
+                  className="text-base font-semibold text-primary hover:underline"
+                >
                   Open the case →
                 </Link>
               </div>
             ) : (
               <div className="w-full overflow-hidden rounded-2xl border bg-card text-left">
-                <WebCall callId={call._id} caseId={call.caseId} status={call.status} />
+                <WebCall
+                  callId={call._id}
+                  caseId={call.caseId}
+                  status={call.status}
+                />
               </div>
             )}
           </>

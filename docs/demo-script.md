@@ -15,7 +15,7 @@
 
 | Time | Shot | Voiceover / on-screen | Label |
 |---|---|---|---|
-| 0:00–0:06 | Ops board; an email with invoice #1043 arrives from the studio's usual paper supplier | "This invoice looks routine." | Hyphenate: the moment |
+| 0:00–0:06 | Dashboard; an email with invoice #1043 arrives from the studio's usual paper supplier | "This invoice looks routine." | Hyphenate: the moment |
 | 0:06–0:18 | The case page lights up three red checks; the status flips to "Payment frozen" | Captions: bank changed · CRS: number belongs to someone else, fraud 85/100 · hidden instructions aimed at the AI | CRS |
 | 0:18–0:40 | The phone on the table rings; the transcript streams live. Josiah: "No, we didn't change anything." → BLOCKED: confirmed fraud attempt | Call subtitles | Cartesia |
 | 0:40–0:52 | "Why did you hold it?" answered aloud; the cited evidence highlights | | Anthropic · Hyphenate |

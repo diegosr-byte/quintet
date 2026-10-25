@@ -83,7 +83,7 @@ export default function OpsBoard() {
       <header className="flex flex-wrap items-center justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold tracking-tight text-primary">
-            Ops board
+            Dashboard
           </h1>
           <p className="text-base text-muted-foreground">
             Live: every bill and where it is in the team&apos;s five steps.
