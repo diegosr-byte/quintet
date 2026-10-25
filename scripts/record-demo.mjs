@@ -182,6 +182,26 @@ await step("shot3-call", async () => {
   await zoom(null);
 });
 
+// Shot 3b: the finished call, from the case page of a real call that is already on the board. CASE_TEXT picks it
+// (for example its invoice number, LF-26348). Run alone with ONLY=skip-open-case,shot3b-result.
+await step("skip-open-case", async () => {
+  await page.goto(`${BASE}/board`, { waitUntil: "networkidle" });
+  await sleep(1200);
+  await text("Cases").click().catch(() => {}); // the list starts collapsed
+  const link = page.locator('a[href^="/case/"]', { hasText: process.env.CASE_TEXT ?? "LF-" }).first();
+  await link.waitFor({ timeout: 30_000 });
+  await clickOn(link);
+  await page.waitForURL(/\/case\//);
+});
+await step("shot3b-result", async () => {
+  const panel = page.getByText("Verification call").first();
+  await panel.waitFor({ timeout: 30_000 });
+  await text("changed nothing").waitFor({ timeout: 30_000 }); // the call's result line
+  await caption("The vendor says nothing changed → blocked for good", "Cartesia");
+  await panel.evaluate((el) => el.scrollIntoView({ block: "start", behavior: "smooth" }));
+  await sleep(5000);
+});
+
 // Shot 5 (0:44-0:54): "Why was this stopped?" (the chip, since voice can't run headless).
 await step("shot5-cora", async () => {
   await caption("Every answer comes from the case's own record.", "Anthropic · Hyphenate");
