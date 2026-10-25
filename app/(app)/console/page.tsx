@@ -7,11 +7,12 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAction, useMutation } from "convex/react";
 import {
+  ChevronDown,
   CircleCheck,
   LoaderCircle,
   QrCode,
+  Send,
   Smartphone,
-  Sparkles,
   X,
 } from "lucide-react";
 import { api } from "@/convex/_generated/api";
@@ -190,6 +191,29 @@ export default function ConsolePage() {
     ? toCents(DUPLICATE.amount)
     : toCents(k.amount);
 
+  const payeeLabel = isReceipt
+    ? (EMPLOYEES.find((e) => e.key === k.employee)?.name ?? "")
+    : k.duplicate
+      ? "Kestrel Signs"
+      : k.payeeMode === "on_file"
+        ? (VENDORS.find((v) => v.key === k.vendor)?.name ?? "")
+        : (NEW_VENDORS.find((p) => p.personaId === k.persona)?.displayName ??
+          "");
+  const flags = [
+    k.bankChanged && onFile && !k.duplicate && "bank changed",
+    k.otherCallback && onFile && !k.duplicate && "other callback number",
+    k.hidden && "hidden text",
+    k.duplicate && "already paid",
+  ].filter(Boolean);
+  const summary = [
+    TEMPLATES.find((t) => t.value === k.template)?.label,
+    amountCents === null
+      ? "check the amount"
+      : `$${(amountCents / 100).toLocaleString("en-US", { minimumFractionDigits: 2 })}`,
+    payeeLabel,
+    ...flags,
+  ].join(" · ");
+
   const generate = async () => {
     if (amountCents === null) return;
     setBusy(true);
@@ -253,12 +277,12 @@ export default function ConsolePage() {
         <div>
           <div className="flex items-center gap-3">
             <h1 className="text-3xl font-bold tracking-tight text-primary">
-              Try it yourself
+              Send a test
             </h1>
             <SyntheticBadge />
           </div>
           <p className="text-muted-foreground">
-            Make a test document, send it to Ivy, and watch the team decide.
+            Pick a scenario, send it to Ivy, and watch the team decide.
           </p>
         </div>
       </header>
@@ -270,7 +294,7 @@ export default function ConsolePage() {
         >
           <div>
             <h2 className="mb-3 text-xl font-semibold">
-              Start from a scenario
+              Pick a scenario
               {scenario === null && (
                 <span className="ml-2 rounded-full bg-muted px-2.5 py-0.5 align-middle text-sm font-medium text-muted-foreground">
                   Custom
@@ -328,156 +352,174 @@ export default function ConsolePage() {
             </div>
           </div>
 
-          <div className="grid gap-5 sm:grid-cols-2">
-            <Field label="Document">
-              <select
-                value={k.template}
-                onChange={(e) => set({ template: e.target.value as Template })}
-                className={inputClass}
-              >
-                {TEMPLATES.map((t) => (
-                  <option key={t.value} value={t.value}>
-                    {t.label}
-                  </option>
-                ))}
-              </select>
-            </Field>
-
-            <Field label="Amount">
-              <input
-                value={k.duplicate ? DUPLICATE.amount : k.amount}
-                onChange={(e) => set({ amount: e.target.value })}
-                disabled={k.duplicate}
-                inputMode="decimal"
-                aria-invalid={amountCents === null}
-                className={cn(
-                  inputClass,
-                  "tabular-nums aria-[invalid=true]:border-[#E07A88]",
-                )}
+          <details className="group rounded-2xl border bg-card/50">
+            <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-4 py-3 text-base font-semibold [&::-webkit-details-marker]:hidden">
+              <span>Customize the document</span>
+              <span className="truncate text-sm font-normal text-muted-foreground">
+                {summary}
+              </span>
+              <ChevronDown
+                className="size-5 shrink-0 text-muted-foreground transition-transform group-open:rotate-180"
+                aria-hidden
               />
-            </Field>
-
-            {isReceipt ? (
-              <>
-                <Field label="Employee being reimbursed">
+            </summary>
+            <div className="space-y-6 border-t px-4 py-5">
+              <div className="grid gap-5 sm:grid-cols-2">
+                <Field label="Document">
                   <select
-                    value={k.employee}
-                    onChange={(e) => set({ employee: e.target.value })}
+                    value={k.template}
+                    onChange={(e) =>
+                      set({ template: e.target.value as Template })
+                    }
                     className={inputClass}
                   >
-                    {EMPLOYEES.map((p) => (
-                      <option key={p.key} value={p.key}>
-                        {p.name}
+                    {TEMPLATES.map((t) => (
+                      <option key={t.value} value={t.value}>
+                        {t.label}
                       </option>
                     ))}
                   </select>
                 </Field>
-                <Field label="Merchant">
+
+                <Field label="Amount">
                   <input
-                    value={k.merchant}
-                    onChange={(e) => set({ merchant: e.target.value })}
-                    className={inputClass}
+                    value={k.duplicate ? DUPLICATE.amount : k.amount}
+                    onChange={(e) => set({ amount: e.target.value })}
+                    disabled={k.duplicate}
+                    inputMode="decimal"
+                    aria-invalid={amountCents === null}
+                    className={cn(
+                      inputClass,
+                      "tabular-nums aria-[invalid=true]:border-[#E07A88]",
+                    )}
                   />
                 </Field>
-              </>
-            ) : (
-              <>
-                <Field label="Payee">
-                  <div
-                    className="flex rounded-xl bg-muted p-1"
-                    role="radiogroup"
-                    aria-label="Payee type"
-                  >
-                    {(["on_file", "new"] as const).map((mode) => (
-                      <button
-                        key={mode}
-                        type="button"
-                        role="radio"
-                        aria-checked={k.payeeMode === mode}
-                        disabled={k.duplicate}
-                        onClick={() => set({ payeeMode: mode })}
-                        className={cn(
-                          "flex-1 rounded-lg px-3 py-2 text-base font-medium transition-colors disabled:opacity-50",
-                          k.payeeMode === mode
-                            ? "bg-card shadow-sm"
-                            : "text-muted-foreground",
-                        )}
-                      >
-                        {mode === "on_file" ? "Vendor on file" : "New vendor"}
-                      </button>
-                    ))}
-                  </div>
-                </Field>
-                <Field
-                  label={
-                    k.payeeMode === "on_file"
-                      ? "Vendor"
-                      : "New vendor (test identity)"
-                  }
-                >
-                  {k.payeeMode === "on_file" || k.duplicate ? (
-                    <select
-                      value={k.duplicate ? DUPLICATE.payee : k.vendor}
-                      disabled={k.duplicate}
-                      onChange={(e) => set({ vendor: e.target.value })}
-                      className={inputClass}
-                    >
-                      {VENDORS.map((v) => (
-                        <option key={v.key} value={v.key}>
-                          {v.name}
-                        </option>
-                      ))}
-                    </select>
-                  ) : (
-                    <select
-                      value={k.persona}
-                      onChange={(e) => set({ persona: e.target.value })}
-                      className={inputClass}
-                    >
-                      {NEW_VENDORS.map((p) => (
-                        <option key={p.personaId} value={p.personaId}>
-                          {p.displayName} · {p.note}
-                        </option>
-                      ))}
-                    </select>
-                  )}
-                </Field>
-              </>
-            )}
-          </div>
 
-          <fieldset className="space-y-1">
-            <legend className="mb-2 text-base text-muted-foreground">
-              Make it suspicious
-            </legend>
-            <Toggle
-              checked={k.bankChanged && onFile && !k.duplicate}
-              disabled={!onFile || k.duplicate}
-              onChange={(v) => set({ bankChanged: v })}
-              label="Bank account changed"
-              hint="Pay to a new account instead of the one on file"
-            />
-            <Toggle
-              checked={k.otherCallback && onFile && !k.duplicate}
-              disabled={!onFile || k.duplicate}
-              onChange={(v) => set({ otherCallback: v })}
-              label="Callback number belongs to someone else"
-              hint="The invoice lists a phone number that isn't the vendor's"
-            />
-            <Toggle
-              checked={k.hidden}
-              onChange={(v) => set({ hidden: v })}
-              label="Hidden instructions"
-              hint={`White 1-pt text: “${HIDDEN_TEXT}”`}
-            />
-            <Toggle
-              checked={k.duplicate}
-              disabled={isReceipt}
-              onChange={(v) => set({ duplicate: v })}
-              label="Re-send an invoice that was already paid"
-              hint="Kestrel Signs KS-1041, $450"
-            />
-          </fieldset>
+                {isReceipt ? (
+                  <>
+                    <Field label="Employee being reimbursed">
+                      <select
+                        value={k.employee}
+                        onChange={(e) => set({ employee: e.target.value })}
+                        className={inputClass}
+                      >
+                        {EMPLOYEES.map((p) => (
+                          <option key={p.key} value={p.key}>
+                            {p.name}
+                          </option>
+                        ))}
+                      </select>
+                    </Field>
+                    <Field label="Merchant">
+                      <input
+                        value={k.merchant}
+                        onChange={(e) => set({ merchant: e.target.value })}
+                        className={inputClass}
+                      />
+                    </Field>
+                  </>
+                ) : (
+                  <>
+                    <Field label="Payee">
+                      <div
+                        className="flex rounded-xl bg-muted p-1"
+                        role="radiogroup"
+                        aria-label="Payee type"
+                      >
+                        {(["on_file", "new"] as const).map((mode) => (
+                          <button
+                            key={mode}
+                            type="button"
+                            role="radio"
+                            aria-checked={k.payeeMode === mode}
+                            disabled={k.duplicate}
+                            onClick={() => set({ payeeMode: mode })}
+                            className={cn(
+                              "flex-1 rounded-lg px-3 py-2 text-base font-medium transition-colors disabled:opacity-50",
+                              k.payeeMode === mode
+                                ? "bg-card shadow-sm"
+                                : "text-muted-foreground",
+                            )}
+                          >
+                            {mode === "on_file"
+                              ? "Vendor on file"
+                              : "New vendor"}
+                          </button>
+                        ))}
+                      </div>
+                    </Field>
+                    <Field
+                      label={
+                        k.payeeMode === "on_file"
+                          ? "Vendor"
+                          : "New vendor (test identity)"
+                      }
+                    >
+                      {k.payeeMode === "on_file" || k.duplicate ? (
+                        <select
+                          value={k.duplicate ? DUPLICATE.payee : k.vendor}
+                          disabled={k.duplicate}
+                          onChange={(e) => set({ vendor: e.target.value })}
+                          className={inputClass}
+                        >
+                          {VENDORS.map((v) => (
+                            <option key={v.key} value={v.key}>
+                              {v.name}
+                            </option>
+                          ))}
+                        </select>
+                      ) : (
+                        <select
+                          value={k.persona}
+                          onChange={(e) => set({ persona: e.target.value })}
+                          className={inputClass}
+                        >
+                          {NEW_VENDORS.map((p) => (
+                            <option key={p.personaId} value={p.personaId}>
+                              {p.displayName} · {p.note}
+                            </option>
+                          ))}
+                        </select>
+                      )}
+                    </Field>
+                  </>
+                )}
+              </div>
+
+              <fieldset className="space-y-1">
+                <legend className="mb-2 text-base text-muted-foreground">
+                  Make it suspicious
+                </legend>
+                <Toggle
+                  checked={k.bankChanged && onFile && !k.duplicate}
+                  disabled={!onFile || k.duplicate}
+                  onChange={(v) => set({ bankChanged: v })}
+                  label="Bank account changed"
+                  hint="Pay to a new account instead of the one on file"
+                />
+                <Toggle
+                  checked={k.otherCallback && onFile && !k.duplicate}
+                  disabled={!onFile || k.duplicate}
+                  onChange={(v) => set({ otherCallback: v })}
+                  label="Callback number belongs to someone else"
+                  hint="The invoice lists a phone number that isn't the vendor's"
+                />
+                <Toggle
+                  checked={k.hidden}
+                  onChange={(v) => set({ hidden: v })}
+                  label="Hidden instructions"
+                  hint={`White 1-pt text: “${HIDDEN_TEXT}”`}
+                />
+                <Toggle
+                  checked={k.duplicate}
+                  disabled={isReceipt}
+                  onChange={(v) => set({ duplicate: v })}
+                  label="Re-send an invoice that was already paid"
+                  hint="Kestrel Signs KS-1041, $450"
+                />
+              </fieldset>
+            </div>
+          </details>
 
           {error && (
             <p
@@ -497,7 +539,7 @@ export default function ConsolePage() {
             {busy ? (
               <LoaderCircle className="animate-spin" aria-hidden />
             ) : (
-              <Sparkles aria-hidden />
+              <Send aria-hidden />
             )}
             {busy ? "Making the document…" : "Generate and send to Ivy"}
           </Button>

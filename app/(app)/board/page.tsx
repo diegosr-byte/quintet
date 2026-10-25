@@ -4,7 +4,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { useMutation } from "convex/react";
-import { ArrowRight, Power, Sparkles } from "lucide-react";
+import { ArrowRight, FilePlus2, Power } from "lucide-react";
 import { api } from "@/convex/_generated/api";
 import { FunctionReturnType } from "convex/server";
 import { VerdictButton, WhyPanel } from "@/components/CaseWhy";
@@ -98,7 +98,7 @@ export default function OpsBoard() {
             className="h-14 rounded-full px-6 text-lg [&_svg]:size-5"
           >
             <Link href="/console">
-              <Sparkles aria-hidden /> Try it yourself
+              <FilePlus2 aria-hidden /> Send a test
             </Link>
           </Button>
           <Button

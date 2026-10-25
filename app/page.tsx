@@ -122,7 +122,7 @@ export default function Home() {
               href="/board"
               className="rounded-full bg-primary px-4 py-2 font-semibold text-primary-foreground hover:opacity-90"
             >
-              Open the app
+              Live dashboard
             </Link>
           </nav>
         </div>
@@ -259,7 +259,7 @@ export default function Home() {
                 href="/console"
                 className="mt-5 inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2.5 font-semibold text-primary-foreground hover:opacity-90"
               >
-                Run it yourself <ArrowRight className="size-4" aria-hidden />
+                Run this example <ArrowRight className="size-4" aria-hidden />
               </Link>
             </div>
             <div className="rounded-2xl border border-[#F6D0D5] bg-[#FFFAFA] p-5">
@@ -391,7 +391,7 @@ export default function Home() {
                 href="/board"
                 className="inline-flex items-center gap-2 rounded-full border bg-card px-6 py-3 font-semibold hover:bg-accent"
               >
-                Open the app
+                See the live dashboard
               </Link>
             </div>
           </div>

@@ -12,7 +12,7 @@ import {
   PhoneIncoming,
   ScrollText,
   Smartphone,
-  Sparkles,
+  FilePlus2,
   X,
 } from "lucide-react";
 import { AgentAvatar, AGENTS, TEAM } from "@/components/agents";
@@ -23,7 +23,7 @@ import { cn } from "@/lib/utils";
 
 const PAGES = [
   { href: "/board", label: "Ops board", icon: LayoutDashboard },
-  { href: "/console", label: "Try it yourself", icon: Sparkles },
+  { href: "/console", label: "Send a test", icon: FilePlus2 },
   { href: "/scorecard", label: "Scorecard", icon: BarChart3 },
   { href: "/policy", label: "Policy", icon: ScrollText },
 ];
