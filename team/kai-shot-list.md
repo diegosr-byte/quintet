@@ -24,7 +24,7 @@ Each shot says what to have on screen, what to click, the caption, and the label
 
 | # | Time | On screen / action | Caption (burned in) | Label |
 |---|---|---|---|---|
-| 1 | 0:00–0:06 | Ops board, team strip visible. Click **Try it yourself → "We switched banks" → Generate**. The case appears on the board; Ivy (cloud) bobs. | "An invoice from the usual paper supplier. Looks routine." | Hyphenate: the moment |
+| 1 | 0:00–0:06 | Ops board, team strip visible. Click **Send a test → "We switched banks" → Generate**. The case appears on the board; Ivy (cloud) bobs. | "An invoice from the usual paper supplier. Looks routine." | Hyphenate: the moment |
 | 2 | 0:06–0:18 | Case page. Red flags fill in: **Bank account changed · Phone belongs to someone else / High fraud score · Hidden instructions aimed at the AI.** Status chip flips to **Payment frozen**; tracker stops on **Cal · Call**. | "Bank changed · CRS: number belongs to someone else, fraud 85/100 · hidden instructions aimed at the AI" | CRS |
 | 3 | 0:18–0:40 | Scroll to **Verification call**: the **Live** badge pulses, Cal's lines stream in. Cut to the phone ringing on the table; Josiah: "No, we didn't change anything." Verdict stays **BLOCK**; status → **Blocked**. | Call subtitles (Cal / Vendor) | Cartesia |
 | 4 | 0:40–0:52 | **Ask Cora**: tap the mic, ask "Why did you hold it?", tap again. Cora's answer plays aloud and appears as a bubble; she bobs while speaking. | The answer text, plus "Every answer comes from the case's own audit log." | Anthropic · Hyphenate |

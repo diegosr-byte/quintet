@@ -58,7 +58,7 @@
 ## Before the first judge: status
 1. Break the payment before the case exists: built (console toggle, creation-time flag). Check once.
 2. Reset between judges: built (Reset demo button, `seed:resetDemo`). Check once.
-3. Simulate the call: built (button on the case page while the call rings). Check once.
+3. Simulate the call: built (button on the case page while the call rings). **On the live site it only works once Josiah has deployed commit 87ac70e or later**: before that, with CRS the case is already finally blocked and the button did nothing. Test it once after the deploy.
 4. Run the whole pitch ten times back to back with reset between runs. Not done.
 
 ## 20-second sponsor add-ons (for judges who stop by)

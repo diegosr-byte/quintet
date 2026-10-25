@@ -24,3 +24,12 @@ Shot-by-shot detail is in `team/kai-shot-list.md`. Fixes to it:
 ## Sun morning
 - [ ] README timestamps and scorecard filled; Devpost video link added; submitted by 8:30.
 - [ ] `git grep` finds no keys or phone numbers, then make the repo public.
+
+## Recording the screen shots automatically (Diego's setup)
+`scripts/record-demo.mjs` opens the live site in its own browser and records the screen shots with a gliding cursor, smooth zooms, burned-in captions and a sponsor label, one clip per shot. No screen-recording permission is needed.
+- Install once: `npm i --no-save playwright && npx playwright install chromium` (ffmpeg must be installed).
+- Run: `node scripts/record-demo.mjs`. Clips land in `scripts/out/<timestamp>/` (gitignored).
+- `REAL_CALL=1` waits for a person to answer on `/vendor` (for a real call take). `ONLY=reset,shot1-landing,shot2-flags,shot3-call` runs just those steps. `MIC=1` also records the MacBook mic (list devices: `ffmpeg -f avfoundation -list_devices true -i ""`) and puts it on the call clip.
+- The receipt shot uses a copy of the Valero receipt with the cashier's name and card digits blacked out (`scripts/out/valero-receipt.jpg`). Never use the unredacted photo in public footage.
+- Alex Marianetti's clips and the assembled cuts live outside the repo (`~/projects/quintet-alex-clips/`, `~/projects/quintet-demo-cut/`), because they contain his footage.
+- Known limits: the recorder can't capture audio (Cora's spoken answer and the call need a separate take), and the Simulate button needs the backend fix noted in `docs/demo-script.md`.
