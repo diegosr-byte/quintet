@@ -8,11 +8,12 @@
 //
 // Output: scripts/out/<timestamp>/*.webm, one file per page. Convert with: ffmpeg -i in.webm -c:v libx264 -crf 18 out.mp4
 import { chromium } from "playwright";
-import { mkdirSync, readdirSync } from "node:fs";
+import { existsSync, mkdirSync, readdirSync } from "node:fs";
 import { execFileSync } from "node:child_process";
 
 const BASE = (process.env.BASE ?? "https://quintet.marketingmeteor.workers.dev").replace(/\/$/, "");
 const REAL_CALL = process.env.REAL_CALL === "1";
+const RECEIPT = process.env.RECEIPT ?? new URL("./out/valero-receipt.jpg", import.meta.url).pathname; // a copy with the cashier name and card digits blacked out
 const OUT = new URL(`./out/${new Date().toISOString().replace(/[:.]/g, "-")}/`, import.meta.url).pathname;
 mkdirSync(OUT, { recursive: true });
 
@@ -26,7 +27,7 @@ const ctx = await browser.newContext({
   colorScheme: "light",
 });
 // Light mode, a visible cursor, a caption bar and a sponsor label, re-injected on every page load.
-await ctx.addInitScript(() => {
+const overlay = () => {
   try { localStorage.setItem("theme", "light"); } catch {}
   const boot = () => {
     if (document.getElementById("rec-cursor")) return;
@@ -61,7 +62,8 @@ await ctx.addInitScript(() => {
     window.addEventListener("mousedown", () => { ring.classList.remove("go"); void ring.offsetWidth; ring.classList.add("go"); }, true);
   };
   if (document.body) boot(); else document.addEventListener("DOMContentLoaded", boot);
-});
+};
+await ctx.addInitScript(overlay);
 
 const page = await ctx.newPage();
 page.on("dialog", (d) => d.accept());
@@ -211,6 +213,48 @@ await step("shot7-pay-once", async () => {
   await zoom(null);
 });
 
+let receiptHref = "/board";
+// Shot 8 (1:16-1:28): a phone-sized view of /upload sends a receipt photo; the laptop then shows it reimbursed.
+await step("skip-phone-upload", async () => {
+  const phoneDir = `${OUT}phone/`;
+  mkdirSync(phoneDir, { recursive: true });
+  const phoneCtx = await browser.newContext({
+    viewport: { width: 430, height: 932 },
+    recordVideo: { dir: phoneDir, size: { width: 860, height: 1864 } },
+    colorScheme: "light",
+    hasTouch: true,
+  });
+  await phoneCtx.addInitScript(overlay);
+  const ph = await phoneCtx.newPage();
+  await ph.addStyleTag({ content: "#rec-cursor{display:none}" }).catch(() => {});
+  await ph.goto(`${BASE}/upload`, { waitUntil: "networkidle" });
+  await ph.addStyleTag({ content: "#rec-cursor{display:none}" });
+  await sleep(1500);
+  await ph.getByRole("radio", { name: "Employee A" }).click();
+  await sleep(900);
+  await ph.locator("input[capture]").setInputFiles(RECEIPT);
+  await sleep(1800);
+  await ph.getByRole("button", { name: /send to ivy/i }).click();
+  const link = ph.getByRole("link", { name: /watch it go/i });
+  await link.waitFor({ timeout: 60_000 });
+  const href = await link.getAttribute("href");
+  await sleep(2500);
+  await phoneCtx.close();
+  receiptHref = href;
+});
+// The caption promises only what always happens (Ivy reads the photo). Whether it then pays on its own depends on the
+// photo's extraction confidence (90% needed), so this shot doesn't claim a payout.
+await step("shot8-receipt", async () => {
+  await page.goto(`${BASE}${receiptHref}`, { waitUntil: "networkidle" });
+  await caption("Snap a receipt: Ivy reads it in seconds", "Hyphenate");
+  const fields = page.getByRole("heading", { name: /extracted fields/i }).first();
+  await text("VALERO").waitFor({ timeout: 90_000 });
+  await sleep(1200);
+  await zoom(fields, 1.5);
+  await sleep(4500);
+  await zoom(null);
+});
+
 // Shot 9 (1:28-1:42): the scorecard.
 await step("shot9-scorecard", async () => {
   await page.goto(`${BASE}/scorecard`, { waitUntil: "networkidle" });
@@ -240,10 +284,12 @@ if (webm) {
   const src = `${OUT}${webm}`;
   execFileSync("ffmpeg", ["-loglevel", "error", "-y", "-i", src, "-c:v", "libx264", "-crf", "18", "-pix_fmt", "yuv420p", `${OUT}demo-full.mp4`]);
   marks.forEach((m, i) => {
-    if (m.name === "reset") return;
+    if (m.name === "reset" || m.name.startsWith("skip-")) return;
     const end = marks[i + 1]?.start ?? total;
     execFileSync("ffmpeg", ["-loglevel", "error", "-y", "-ss", String(m.start), "-to", String(end), "-i", src, "-c:v", "libx264", "-crf", "18", "-pix_fmt", "yuv420p", `${OUT}${String(i).padStart(2, "0")}-${m.name}.mp4`]);
     console.log(`${m.name}: ${m.start.toFixed(1)}s to ${end.toFixed(1)}s (${(end - m.start).toFixed(1)}s)`);
   });
 }
+const phoneWebm = existsSync(`${OUT}phone/`) && readdirSync(`${OUT}phone/`).find((f) => f.endsWith(".webm"));
+if (phoneWebm) execFileSync("ffmpeg", ["-loglevel", "error", "-y", "-i", `${OUT}phone/${phoneWebm}`, "-c:v", "libx264", "-crf", "18", "-pix_fmt", "yuv420p", `${OUT}phone-receipt.mp4`]);
 console.log(`\nClips saved in ${OUT}`);
