@@ -59,13 +59,14 @@ function Body({ seat, color, happy }: { seat: Seat; color: string; happy: boolea
     case "intake": // a cloud: takes things in
       return (
         <>
+          {/* Symmetric puffs, kept inside the 7–57 frame (the old right puff spilled past 57). */}
           <g fill={color}>
-            <circle cx="22" cy="36" r="13" />
-            <circle cx="35" cy="27" r="15" />
-            <circle cx="46" cy="38" r="12" />
-            <rect x="14" y="36" width="40" height="14" rx="7" />
+            <circle cx="20" cy="36" r="12" />
+            <circle cx="32" cy="28" r="15" />
+            <circle cx="44" cy="36" r="12" />
+            <rect x="12" y="36" width="40" height="14" rx="7" />
           </g>
-          {eyes(34, 36)}
+          {eyes(32, 36)}
         </>
       );
     case "verification": // a chunky check mark: it checks things

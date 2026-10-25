@@ -2,14 +2,12 @@
 
 // Policy: the active rules in plain English (written from the live parameters, so they always match
 // what the gate enforces), plus the version history.
-import Link from "next/link";
 import { useQuery } from "convex/react";
-import { ArrowLeft, CircleCheck, CircleX, ExternalLink } from "lucide-react";
+import { CircleCheck, CircleX, ExternalLink } from "lucide-react";
 import { api } from "@/convex/_generated/api";
 import { Doc } from "@/convex/_generated/dataModel";
 import type { PolicyRules, Verdict } from "@/convex/lib/policy";
 import { AgentAvatar } from "@/components/agents";
-import { ThemeSwitch } from "@/components/ThemeSwitch";
 import {
   formatCents,
   SyntheticBadge,
@@ -129,16 +127,6 @@ export default function PolicyPage() {
 
   return (
     <main className="mx-auto max-w-5xl space-y-6 p-6 pb-28 text-lg">
-      <div className="flex items-center justify-between">
-        <Link
-          href="/"
-          className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground"
-        >
-          <ArrowLeft className="size-5" aria-hidden /> Ops board
-        </Link>
-        <ThemeSwitch />
-      </div>
-
       <header className="flex flex-wrap items-center gap-4">
         <AgentAvatar seat="controller" size={56} />
         <div>

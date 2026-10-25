@@ -5,27 +5,28 @@
 /* To change the theme colors, change the values below
   or use the "Copy code" button at https://ui.shadcn.com/themes */
 @layer base {
-  /* Soft, trustworthy: cool blue-gray canvas, white cards, deep navy text (team/kai.md: high contrast). */
+  /* Soft and friendly but professional: a pale sky canvas, white cards, a clear blue accent and deep
+     slate-blue text (still high contrast for the projector, team/kai.md). */
   :root {
-    --background: 220 33% 97%;
-    --foreground: 218 42% 18%;
+    --background: 212 70% 98.5%;
+    --foreground: 220 40% 17%;
     --card: 0 0% 100%;
-    --card-foreground: 218 42% 18%;
+    --card-foreground: 220 40% 17%;
     --popover: 0 0% 100%;
-    --popover-foreground: 218 42% 18%;
-    --primary: 212 58% 30%;
+    --popover-foreground: 220 40% 17%;
+    --primary: 217 72% 48%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 220 33% 94%;
-    --secondary-foreground: 218 42% 18%;
-    --muted: 220 30% 94%;
-    --muted-foreground: 218 16% 40%;
-    --accent: 222 50% 95%;
-    --accent-foreground: 218 42% 18%;
+    --secondary: 212 70% 95.5%;
+    --secondary-foreground: 220 40% 17%;
+    --muted: 212 55% 95%;
+    --muted-foreground: 218 16% 42%;
+    --accent: 210 85% 94.5%;
+    --accent-foreground: 220 40% 17%;
     --destructive: 354 74% 37%;
     --destructive-foreground: 0 0% 100%;
-    --border: 220 26% 88%;
-    --input: 220 26% 84%;
-    --ring: 222 70% 60%;
+    --border: 212 45% 89%;
+    --input: 212 38% 84%;
+    --ring: 213 85% 62%;
     --chart-1: 225 100% 86%;
     --chart-2: 43 100% 78%;
     --chart-3: 18 100% 84%;
@@ -47,27 +48,27 @@
     --ink-system: #4A5568;
     --tint-system: #F4F6FA;
   }
-  /* Dark: deep navy canvas, slightly lifted cards, soft light text. Same pastel agents. */
+  /* Dark: a deep blue canvas, slightly lifted cards, soft light text. Same pastel agents. */
   .dark {
-    --background: 222 32% 8%;
+    --background: 218 40% 9%;
     --foreground: 220 30% 93%;
-    --card: 222 26% 12%;
+    --card: 218 32% 13%;
     --card-foreground: 220 30% 93%;
-    --popover: 222 26% 12%;
+    --popover: 218 32% 13%;
     --popover-foreground: 220 30% 93%;
-    --primary: 214 85% 76%;
+    --primary: 210 95% 76%;
     --primary-foreground: 222 32% 10%;
-    --secondary: 222 20% 17%;
+    --secondary: 218 26% 18%;
     --secondary-foreground: 220 30% 93%;
-    --muted: 222 20% 17%;
+    --muted: 218 26% 18%;
     --muted-foreground: 220 14% 66%;
-    --accent: 222 22% 19%;
+    --accent: 214 36% 21%;
     --accent-foreground: 220 30% 93%;
     --destructive: 354 80% 68%;
     --destructive-foreground: 222 32% 10%;
-    --border: 222 18% 22%;
-    --input: 222 18% 26%;
-    --ring: 222 80% 70%;
+    --border: 218 24% 23%;
+    --input: 218 24% 27%;
+    --ring: 210 90% 70%;
     --ink-intake: #AFC3FF;
     --tint-intake: rgb(140 165 255 / 0.14);
     --ink-verification: #F2CB72;
@@ -96,10 +97,21 @@
 }
 
 @layer components {
+  /* A soft blue glow behind the landing hero text, so it lifts off the page. */
+  .hero-backdrop {
+    background:
+      radial-gradient(ellipse 48% 42% at 50% 50%, rgb(90 145 245 / 0.26), transparent 70%),
+      radial-gradient(ellipse 75% 65% at 50% 52%, rgb(150 190 255 / 0.22), transparent 72%);
+  }
+  .dark .hero-backdrop {
+    background:
+      radial-gradient(ellipse 48% 42% at 50% 50%, rgb(90 145 245 / 0.22), transparent 70%),
+      radial-gradient(ellipse 75% 65% at 50% 52%, rgb(80 130 230 / 0.12), transparent 72%);
+  }
   /* White card with a soft, low shadow (reference: agent team diagram). */
   .soft-card {
     @apply rounded-2xl border border-border/70 bg-card;
-    box-shadow: 0 1px 2px rgb(28 43 69 / 0.04), 0 6px 20px rgb(28 43 69 / 0.06);
+    box-shadow: 0 1px 2px rgb(30 70 150 / 0.05), 0 8px 24px rgb(40 90 190 / 0.08);
   }
   .dark .soft-card {
     box-shadow: 0 1px 2px rgb(0 0 0 / 0.3), 0 8px 24px rgb(0 0 0 / 0.25);
@@ -168,3 +180,26 @@
 .dark .border-\[\#F6E3B0\] { border-color: rgb(245 190 70 / 0.30); }
 .dark .border-\[\#E9C46A\] { border-color: rgb(245 190 70 / 0.45); }
 .dark .border-\[\#A8BEFF\] { border-color: rgb(140 165 255 / 0.50); }
+
+/* Landing sections fade and rise in as they scroll into view (components/ScrollReveal.tsx). */
+.reveal-ready .reveal {
+  opacity: 0;
+  transform: translateY(28px);
+  transition: opacity 0.8s ease, transform 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.reveal-ready .reveal.is-visible {
+  opacity: 1;
+  transform: none;
+}
+/* App pages fade in gently when opened. */
+@keyframes page-enter {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: none; }
+}
+.page-enter {
+  animation: page-enter 0.5s ease both;
+}
+@media (prefers-reduced-motion: reduce) {
+  .reveal-ready .reveal { opacity: 1; transform: none; transition: none; }
+  .page-enter { animation: none; }
+}

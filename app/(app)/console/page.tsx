@@ -7,7 +7,6 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAction, useMutation } from "convex/react";
 import {
-  ArrowLeft,
   CircleCheck,
   LoaderCircle,
   QrCode,
@@ -19,7 +18,6 @@ import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
 import { QRCodeSVG } from "qrcode.react";
 import { Button } from "@/components/ui/button";
-import { ThemeSwitch } from "@/components/ThemeSwitch";
 import { AgentAvatar } from "@/components/agents";
 import { SyntheticBadge } from "@/components/case-ui";
 import { cn } from "@/lib/utils";
@@ -250,16 +248,6 @@ export default function ConsolePage() {
 
   return (
     <main className="mx-auto max-w-6xl space-y-6 p-6 pb-28 text-lg">
-      <div className="flex items-center justify-between">
-        <Link
-          href="/"
-          className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground"
-        >
-          <ArrowLeft className="size-5" aria-hidden /> Ops board
-        </Link>
-        <ThemeSwitch />
-      </div>
-
       <header className="flex flex-wrap items-center gap-4">
         <AgentAvatar seat="intake" size={56} happy />
         <div>
@@ -573,7 +561,7 @@ function Toggle({
     >
       <input
         type="checkbox"
-        className="mt-1 size-5 accent-[#20497A]"
+        className="mt-1 size-5 accent-primary"
         checked={checked}
         disabled={disabled}
         onChange={(e) => onChange(e.target.checked)}

@@ -21,7 +21,6 @@ import {
 } from "@/components/case-ui";
 import { ApprovalPanel } from "@/components/ApprovalPanel";
 import { Collapsible } from "@/components/Collapsible";
-import { ThemeSwitch } from "@/components/ThemeSwitch";
 import { AskPanel } from "@/components/AskPanel";
 import { CallPanel } from "@/components/CallPanel";
 import { VerdictButton, WhyPanel } from "@/components/CaseWhy";
@@ -58,15 +57,12 @@ export default function CasePage() {
 
   return (
     <main className="mx-auto max-w-7xl space-y-6 p-6 pb-28 text-lg">
-      <div className="flex items-center justify-between">
-        <Link
-          href="/"
-          className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground"
-        >
-          <ArrowLeft className="size-5" aria-hidden /> Ops board
-        </Link>
-        <ThemeSwitch />
-      </div>
+      <Link
+        href="/board"
+        className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground"
+      >
+        <ArrowLeft className="size-5" aria-hidden /> Ops board
+      </Link>
 
       {/* Verdict header: readable from the back of the room. */}
       <header className="soft-card flex flex-wrap items-start justify-between gap-6 p-6">
