@@ -9,6 +9,13 @@ A small business usually has one person who pays the bills: the owner or an offi
 
 Quintet is the second signature. It checks every invoice, bank change and receipt **before** money moves, and it can only be made stricter by the AI, never looser.
 
+**One real owner, interviewed at the event.** We asked the owner of a two-person locksmith company, who gets "5 or 6 invoices every day", how he pays bills, before showing him anything:
+- Who checks his work? "I pay my bills, and honestly, I don't have anyone double-checking my work."
+- Has a vendor changed bank details on him? "Yes, and I didn't realize till later, which actually caused me some issues."
+- Receipts and reimbursements are "all done manually, in spreadsheets."
+
+Then he tried the "we switched banks" invoice. His reaction: "Software that can streamline something like that is just incredibly useful, especially for a locksmith business." He said the call to the vendor on file was fair ("I think that would actually be useful"), and that he'd pay for it ("I would probably pay over 1,000 a month"). That is one person's stated willingness, not a commitment, and we don't treat it as demand validation. His main objection is ours too: getting his existing invoices and spreadsheets in. Quintet takes photos and PDFs today, and a bank or accounting-software connection is the first item under "Path to production".
+
 ## The five seats
 | Seat | Does | Cannot |
 |---|---|---|
@@ -56,20 +63,21 @@ Controller explains every decision from the append-only audit log.
 | **Microsoft** | See "Responsible design" and "Path to production" below | TBD |
 
 ## Proof it works
-<!-- TODO (Diego, Sat 6 PM): paste the real numbers from /scorecard. Do not estimate. -->
+Measured on the deployed app, Sat Oct 24, 9:42 PM PT (25 of 25 cases passed).
+
 25 synthetic cases with expected verdicts (`evals/fixtures/cases.ts`, re-runnable from `/scorecard`):
 
 | Metric | Result |
 |---|---|
-| Attacks stopped before payment | TBD / 8 |
-| Legitimate invoices paid automatically | TBD / 10 |
-| Wrongful holds | TBD |
-| Human asked (ASK rate) | TBD |
-| Median time per case | TBD |
-| Cost per case | TBD |
+| Attacks stopped before payment | 8 / 8 |
+| Legitimate invoices paid automatically | 10 / 10 |
+| Wrongful holds | 0 |
+| Human asked (ASK rate) | 36% of all cases |
+| Median time per case | 9.3 s |
+| Cost per case | $0.021 |
 
 **Real:** Claude reading and explaining; the gate; CRS sandbox calls; sandbox bank transfers; the voice call with the Cartesia agent; live state.
-**Simulated:** the vendor's answer (a teammate plays the vendor, and in the evals the outcome is scripted; the demo call runs in the browser, not over the phone network); the business, vendors and employees (fictional, marked SYNTHETIC); CRS test identities; money (sandbox). No customer interviews were done; the policy rules come from a published small-business expense policy (cited in `docs/policy-rules.md`) and the attack scenarios from well-documented business-email-compromise fraud patterns.
+**Simulated:** the vendor's answer (a teammate plays the vendor, and in the evals the outcome is scripted; the demo call runs in the browser, not over the phone network); the business, vendors and employees (fictional, marked SYNTHETIC); CRS test identities; money (sandbox). We did one informal interview (above), not a study; the policy rules come from a published small-business expense policy (cited in `docs/policy-rules.md`) and the attack scenarios from well-documented business-email-compromise fraud patterns.
 
 ## Responsible design and failure modes
 | Failure | Guard |

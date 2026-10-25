@@ -10,6 +10,8 @@ Hyphenate (primary), CRS Credit, Anthropic (Claude), Cartesia, Capital One Nessi
 ## Inspiration
 Picture a three-person print shop. One person pays the bills, and nobody checks their work. On Tuesday the usual paper supplier emails: "We've switched banks, please use the new account." The invoice looks right, the amount is normal, and the new account belongs to a fraudster. Nobody catches it, because nobody was ever positioned to. That is payment-redirection fraud, and it's built for exactly that gap. Quintet is the second signature a small business can't staff.
 
+We interviewed one owner at the event, the head of a two-person locksmith company who handles 5 or 6 invoices a day. Nobody double-checks his payments, a vendor once changed bank details on him and he "didn't realize till later", and receipts are "all done manually, in spreadsheets." When he saw Quintet stop the fake bank change, he called it "incredibly useful". His main objection: getting his existing invoices in. It's one interview, not validation, but it's the person we built this for.
+
 ## What it does
 A clear, defined workflow runs on every document. Five steps, each owned by one seat:
 1. **Read.** Intake clerk (Claude, no tools) extracts the fields. A plain-code parser re-reads the amount, account and invoice number, and any disagreement goes to a human.
@@ -40,7 +42,7 @@ Snap a photo of a receipt and the same gate applies company policy: itemized, re
 - **A call can't prove who answered.** So "yes, we changed it" only reaches ASK, and voice can never approve a payment. A forged answer cannot move money.
 
 ## Accomplishments we're proud of
-- It stops the fraud **without** wrongly holding good vendors: 25 synthetic cases re-run from `/scorecard`. Attacks stopped **[TBD] / 8**, legitimate invoices paid automatically **[TBD] / 10**, wrongful holds **[TBD]**, median time **[TBD]**, cost per case **[TBD]**.
+- It stops the fraud **without** wrongly holding good vendors: 25 synthetic cases re-run from `/scorecard`. Attacks stopped **8 / 8**, legitimate invoices paid automatically **10 / 10**, wrongful holds **0**, median time **9.3 s**, cost per case **$0.021**.
 - Every decision traces to a rule and an evidence line in the audit log, so a business owner can read why.
 
 ## What we learned
@@ -54,7 +56,7 @@ Pilot with a few local small businesses, connect real bank and accounting export
 
 ## Real vs simulated
 **Real:** Claude reading and explaining, the gate, CRS sandbox calls, sandbox bank transfers, the Cartesia voice agent, live state.
-**Simulated:** the business, vendors and employees (fictional, marked SYNTHETIC), CRS test identities, sandbox money, and the vendor's answer (a teammate plays the vendor; the demo call runs in the browser, not over the phone network). We did no customer interviews. The policy comes from a published small-business expense policy and the attacks from documented business-email-compromise patterns.
+**Simulated:** the business, vendors and employees (fictional, marked SYNTHETIC), CRS test identities, sandbox money, and the vendor's answer (a teammate plays the vendor; the demo call runs in the browser, not over the phone network). We did one informal interview with a small-business owner, not a study. The policy comes from a published small-business expense policy and the attacks from documented business-email-compromise patterns.
 
 ## Built with
 TypeScript, Next.js, Convex, Anthropic Claude, Cartesia, CRS Credit sandbox, Capital One Nessie, Vercel
