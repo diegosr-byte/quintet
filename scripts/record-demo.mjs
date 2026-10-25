@@ -9,7 +9,7 @@
 // Output: scripts/out/<timestamp>/*.webm, one file per page. Convert with: ffmpeg -i in.webm -c:v libx264 -crf 18 out.mp4
 import { chromium } from "playwright";
 import { existsSync, mkdirSync, readdirSync } from "node:fs";
-import { execFileSync } from "node:child_process";
+import { execFileSync, spawn } from "node:child_process";
 
 const BASE = (process.env.BASE ?? "https://quintet.marketingmeteor.workers.dev").replace(/\/$/, "");
 const REAL_CALL = process.env.REAL_CALL === "1";
@@ -112,8 +112,12 @@ async function zoom(loc, scale = 1.6) {
   await sleep(1000);
 }
 // Keep going if one step's wording has changed; the shot list says what was meant to happen.
+const MIC = process.env.MIC; // e.g. MIC=1 for the MacBook mic (ffmpeg -f avfoundation -list_devices true -i "")
+const mic = MIC ? spawn("ffmpeg", ["-loglevel", "error", "-y", "-f", "avfoundation", "-i", `:${MIC}`, "-ac", "1", "-ar", "48000", `${OUT}mic.wav`], { stdio: ["pipe", "ignore", "inherit"] }) : null;
 const T0 = Date.now(), marks = [];
+const ONLY = process.env.ONLY?.split(",");
 async function step(name, fn) {
+  if (ONLY && !ONLY.includes(name)) return;
   marks.push({ name, start: (Date.now() - T0) / 1000 });
   try { await fn(); console.log("ok  ", name); }
   catch (e) {
@@ -156,20 +160,25 @@ await step("shot2-flags", async () => {
   await zoom(null);
 });
 
-// Shot 3 (0:16-0:34): the call.
+// Shot 3 (0:16-0:34): the call. The tracker already says "Blocked" before the call, so wait on the call panel instead.
 await step("shot3-call", async () => {
+  const dialing = page.getByText("Dialing").first();
+  await dialing.waitFor({ timeout: 60_000 });
+  const panel = page.getByText("Verification call").first();
   if (REAL_CALL) {
-    await caption("Calling the vendor at the number on file…", "Cartesia");
-    await page.getByText(/blocked/i).first().waitFor({ timeout: 90_000 });
+    await caption("Calling the vendor on file…", "Cartesia");
+    await zoom(panel, 1.3);
+    await dialing.waitFor({ state: "hidden", timeout: 120_000 }); // someone answered on /vendor
+    await page.getByText(/^live$/i).first().waitFor({ state: "hidden", timeout: 180_000 }).catch(() => {}); // the call ended
   } else {
     await caption("Simulated call: the vendor says nothing changed", "Cartesia");
     const sim = page.getByRole("button", { name: /simulate/i }).first();
     await sim.waitFor({ timeout: 60_000 });
     await zoom(sim, 1.4);
     await clickOn(sim);
-    await page.getByText(/blocked/i).first().waitFor({ timeout: 60_000 });
+    await dialing.waitFor({ state: "hidden", timeout: 60_000 });
   }
-  await sleep(2500);
+  await sleep(4000);
   await zoom(null);
 });
 
@@ -275,6 +284,7 @@ await step("shot10-close", async () => {
 });
 
 const total = (Date.now() - T0) / 1000;
+if (mic) { mic.stdin.write("q"); await new Promise((r) => mic.on("close", r)); }
 await ctx.close();
 await browser.close();
 
@@ -286,7 +296,8 @@ if (webm) {
   marks.forEach((m, i) => {
     if (m.name === "reset" || m.name.startsWith("skip-")) return;
     const end = marks[i + 1]?.start ?? total;
-    execFileSync("ffmpeg", ["-loglevel", "error", "-y", "-ss", String(m.start), "-to", String(end), "-i", src, "-c:v", "libx264", "-crf", "18", "-pix_fmt", "yuv420p", `${OUT}${String(i).padStart(2, "0")}-${m.name}.mp4`]);
+    const withMic = mic && existsSync(`${OUT}mic.wav`);
+    execFileSync("ffmpeg", ["-loglevel", "error", "-y", "-ss", String(m.start), "-to", String(end), "-i", src, ...(withMic ? ["-ss", String(m.start), "-to", String(end), "-i", `${OUT}mic.wav`, "-map", "0:v", "-map", "1:a", "-c:a", "aac"] : []), "-c:v", "libx264", "-crf", "18", "-pix_fmt", "yuv420p", `${OUT}${String(i).padStart(2, "0")}-${m.name}.mp4`]);
     console.log(`${m.name}: ${m.start.toFixed(1)}s to ${end.toFixed(1)}s (${(end - m.start).toFixed(1)}s)`);
   });
 }

@@ -168,11 +168,13 @@ export const simulate = mutation({
   args: { caseId: v.id("cases"), outcome: v.optional(callOutcome) },
   handler: async (ctx, { caseId, outcome }) => {
     const c = (await ctx.db.get(caseId))!;
-    if (c.status !== "awaiting_call" || !c.partyId) return;
+    if (!c.partyId) return;
     const now = Date.now();
     const done = { toNumber: "simulated", status: "completed" as const, outcome: outcome ?? ("denied_change" as const), startedAt: now, endedAt: now };
     const call = await ctx.db.query("calls").withIndex("by_case", (q) => q.eq("caseId", caseId)).first();
     if (call?.status === "completed") return;
+    // With CRS the case is already finally blocked before the call, so don't gate on case status: any ringing call can be answered.
+    if (!call && c.status !== "awaiting_call") return;
     if (call) await ctx.db.patch(call._id, done);
     else await ctx.db.insert("calls", { caseId, partyId: c.partyId, cartesiaCallId: null, transcript: [], ...done });
     await logResult(ctx, caseId, done.outcome, true);
