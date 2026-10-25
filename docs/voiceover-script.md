@@ -5,7 +5,7 @@ Every line below is timed to a clip in the video. **Read each line at a natural 
 ## How to record (about 5 minutes each)
 1. Quiet room, phone about a hand's width from your mouth. Open **Voice Memos**.
 2. Read **your lines in order**, one after another, with **about 2 seconds of silence between lines**. Don't speak during the pause; it's how the lines are told apart.
-3. If you flub a line, stop talking for 2 seconds and read it again from the start, then tell Diego which line to keep. (Or just redo the whole recording; it's short.)
+3. If you flub a line, just start the whole recording over. It's short, and a re-read inside one file would confuse the line count.
 4. Name the file with your name (`Diego`, `Kai` or `Josiah`) and AirDrop it to Diego. Diego drops it in `~/projects/quintet-voiceovers/`.
 5. Any line can be read by anyone. If Kai or Josiah can't record, Diego reads their lines.
 
