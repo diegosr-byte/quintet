@@ -24,3 +24,7 @@ npm-debug.log*
 .claude/skills/
 AGENTS.md
 skills-lock.json
+
+# Cloudflare (OpenNext)
+.open-next
+.wrangler
