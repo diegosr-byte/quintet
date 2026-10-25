@@ -44,8 +44,7 @@ await ctx.addInitScript(() => {
         text-align:center;opacity:0;transition:opacity .35s}
       #rec-lab{position:fixed;z-index:2147483645;right:28px;top:22px;background:#2D4BA6;color:#fff;
         font:700 22px system-ui,sans-serif;padding:8px 18px;border-radius:999px;opacity:0;transition:opacity .35s}
-      html{transition:transform .9s cubic-bezier(.4,0,.2,1)}
-      body{overflow-x:hidden}
+      body{transition:transform .9s cubic-bezier(.4,0,.2,1);overflow-x:hidden}
     `;
     document.head.appendChild(s);
     const c = document.createElement("div");
@@ -54,7 +53,7 @@ await ctx.addInitScript(() => {
     const ring = document.createElement("div"); ring.id = "rec-ring";
     const cap = document.createElement("div"); cap.id = "rec-cap";
     const lab = document.createElement("div"); lab.id = "rec-lab";
-    document.body.append(ring, c, cap, lab);
+    document.documentElement.append(ring, c, cap, lab); // outside <body>, so zooming the page never moves them
     window.addEventListener("mousemove", (e) => {
       c.style.transform = `translate(${e.clientX}px,${e.clientY}px)`;
       ring.style.left = e.clientX + "px"; ring.style.top = e.clientY + "px";
@@ -101,10 +100,10 @@ async function caption(text, label = "") {
 }
 // Smooth zoom into an element (or back out with no argument).
 async function zoom(loc, scale = 1.6) {
-  if (!loc) { await page.evaluate(() => { document.documentElement.style.transform = ""; }); await sleep(1000); return; }
+  if (!loc) { await page.evaluate(() => { document.body.style.transform = ""; }); await sleep(1000); return; }
   const b = await box(loc);
   await page.evaluate(([cx, cy, s]) => {
-    const h = document.documentElement;
+    const h = document.body;
     h.style.transformOrigin = `${cx + window.scrollX}px ${cy + window.scrollY}px`;
     h.style.transform = `scale(${s})`;
   }, [b.x + b.width / 2, b.y + b.height / 2, scale]);
