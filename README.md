@@ -112,3 +112,6 @@ Keys are never committed; only `.env.example` (names only) is.
 
 ## Team
 Diego Rosen, Josiah Jardine, Kai.
+
+## License
+MIT, see `LICENSE`.

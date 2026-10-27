@@ -96,6 +96,7 @@ export type CrsResult =
 // name, 2202 SSN issued before DOB, 2301 deceased; 2401 fraud alert = step up, not a failure.
 const FRAUD_ALERT_CODE = "2401";
 
+/* eslint-disable @typescript-eslint/no-explicit-any -- CRS responses are untyped third-party JSON */
 let token: string | null = null;
 let loginFailure: string | null = null; // per isolate; callers also persist it (crsLogin table)
 

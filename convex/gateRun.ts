@@ -39,6 +39,7 @@ async function buildInput(ctx: MutationCtx, c: Doc<"cases">, org: Doc<"orgs">, r
     .withIndex("by_case", (q) => q.eq("caseId", c._id))
     .collect();
   const ev = (kind: Doc<"checks">["kind"]) =>
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- evidence is free-form JSON per check kind
     (checks.find((ch) => ch.kind === kind)?.evidence ?? null) as Record<string, any> | null;
 
   const docType = ev("doc_type");

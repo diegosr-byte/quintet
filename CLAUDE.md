@@ -10,7 +10,7 @@ Every small business has one person who pays the bills. Quintet is the second si
 
 ## Start of every session
 1. If it isn't stated, ask which teammate you're working with (Diego, Josiah or Kai).
-2. Read `docs/contracts.md` and that person's `team/<name>.md`. Work through the current block in order. Stop at each "done when" check and show the result.
+2. Read `docs/contracts.md` and that person's `docs/archive/team/<name>.md`. Work through the current block in order. Stop at each "done when" check and show the result.
 3. Other docs, as needed:
    - `docs/policy-rules.md`: gate parameters
    - `docs/eval-cases.md`: the 25 test cases and the seed data
@@ -93,7 +93,7 @@ If you need something from a file you don't own:
 - Never commit `.env*` (except `.env.example`), `node_modules` or video files.
 
 ## When stuck
-- **More than 20 minutes on one problem:** stop, summarize what you tried, and propose the cut listed in `team/<name>.md`.
+- **More than 20 minutes on one problem:** stop, summarize what you tried, and propose the cut listed in `docs/archive/team/<name>.md`.
 - **Before saying something works, run it:** `npx vitest run` for logic, and the real UI for screens.
 
 <!-- convex-ai-start -->

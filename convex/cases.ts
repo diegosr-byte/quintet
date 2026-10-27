@@ -8,6 +8,7 @@ import { caseStatus, seat } from "./schema";
 // The UI never sees callTargetPhone (a teammate's real phone), and sees the on-file phone masked.
 function publicParty(p: Doc<"parties"> | null) {
   if (!p) return null;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- strips the vendor phone from the public view
   const { callTargetPhone: _hidden, ...rest } = p;
   return { ...rest, phoneOnFile: `•••-${p.phoneOnFile.replace(/\D/g, "").slice(-4)}` };
 }

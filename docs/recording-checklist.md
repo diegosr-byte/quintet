@@ -1,6 +1,6 @@
 # Recording checklist (SFSU tonight)
 
-Shot-by-shot detail is in `team/kai-shot-list.md`. Fixes to it:
+Shot-by-shot detail is in `docs/archive/team/kai-shot-list.md`. Fixes to it:
 - Its "Gaps to close first" list is stale: the live call, "break the payment" before the case exists, and the simulate-call fallback are all built. Only check each once.
 - **No real alcohol receipt on camera.** For the 1:20 receipt shot use a generated alcohol receipt (E21), or one of the team's real receipts without alcohol that trips another rule. A real alcohol purchase doesn't go in a public video.
 - Everything the video shows is also in `docs/demo-script.md`; keep the two in step.
